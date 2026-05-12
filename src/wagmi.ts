@@ -13,7 +13,7 @@ export const config = createConfig(
     },
 
     // Required API Keys
-    walletConnectProjectId: '00000000000000000000000000000000',
+    walletConnectProjectId: 'f57e63b655513d69b9148d56b008d6d5', 
 
     // Required App Info
     appName: 'Web3 Analytics',

@@ -1,9 +1,27 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+let genAI: GoogleGenAI | null = null;
+
+function getAI() {
+  if (genAI) return genAI;
+  
+  // Try to get key from process.env (Node/Vite polyfill) or import.meta.env
+  const apiKey = (typeof process !== 'undefined' && process.env?.GEMINI_API_KEY) || ((import.meta as any).env?.VITE_GEMINI_API_KEY);
+  
+  if (!apiKey) {
+    console.warn("GEMINI_API_KEY not found. AI features will be disabled.");
+    return null;
+  }
+  
+  genAI = new GoogleGenAI({ apiKey });
+  return genAI;
+}
 
 export async function getAIInsight(topic: string, data: any) {
   try {
+    const ai = getAI();
+    if (!ai) return "AI insights are currently unavailable. Please check your configuration.";
+    
     const response = await ai.models.generateContent({
       model: "gemini-3.1-pro-preview",
       contents: `You are an expert Web3 analyst. Analyze the following data for "${topic}" and provide key insights, growth predictions, and potential risks. 
@@ -19,6 +37,9 @@ export async function getAIInsight(topic: string, data: any) {
 
 export async function askChainChat(question: string, history: any[]) {
   try {
+    const ai = getAI();
+    if (!ai) return "AI chat is currently unavailable.";
+    
     const chat = ai.chats.create({
       model: "gemini-3-flash-preview",
       config: {
