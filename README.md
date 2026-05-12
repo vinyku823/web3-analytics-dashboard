@@ -18,6 +18,7 @@ Users can monitor wallet activity, discover trending projects early, analyze eco
 
 * Ethereum
 * Solana
+* Aptos
 * Polygon
 * Base
 * Sui
