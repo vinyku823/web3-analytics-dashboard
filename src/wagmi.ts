@@ -2,10 +2,6 @@ import { http, createConfig } from 'wagmi';
 import { mainnet, polygon, base } from 'wagmi/chains';
 import { getDefaultConfig } from 'connectkit';
 
-// Note: Wagmi doesn't natively support Solana/Sui in the same config perfectly 
-// without multi-provider logic, but for the dashboard purpose, we'll focus 
-// on EVM first and provide placeholders for other ecosystem analytics.
-
 export const config = createConfig(
   getDefaultConfig({
     // Your dApp's chains
@@ -24,7 +20,5 @@ export const config = createConfig(
 
     // Optional App Info
     appDescription: 'AI-Powered Web3 Analytics',
-    appUrl: 'https://chainpulse.ai',
-    appIcon: 'https://chainpulse.ai/logo.png',
   }),
 );
