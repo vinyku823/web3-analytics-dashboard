@@ -20,7 +20,7 @@ export const config = createConfig(
     walletConnectProjectId: 'DEFAULT_PROJECT_ID',
 
     // Required App Info
-    appName: 'ChainPulse AI',
+    appName: 'Web3 Analytics',
 
     // Optional App Info
     appDescription: 'AI-Powered Web3 Analytics',

@@ -35,7 +35,7 @@ export function Dashboard() {
             <Activity className="w-12 h-12 text-primary" />
           </div>
           <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tighter">
-            ChainPulse <span className="text-primary font-mono italic text-4xl md:text-6xl">AI</span>
+            Web3 Analytics
           </h1>
           <p className="text-xl text-white/60 mb-10 leading-relaxed max-w-xl mx-auto">
             The next generation of Web3 intelligence. Track on-chain activity, token trends, and AI-powered ecosystem growth in one premium portal.

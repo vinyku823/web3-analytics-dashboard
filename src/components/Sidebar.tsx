@@ -33,7 +33,7 @@ export function Sidebar({ activeTab, setActiveTab }: { activeTab: string, setAct
           <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/40 neon-border">
             <Hexagon className="w-6 h-6 text-primary fill-primary/20" />
           </div>
-          <span className="text-xl font-bold tracking-tighter">ChainPulse AI</span>
+          <span className="text-xl font-bold tracking-tighter">Web3 Analytics</span>
         </div>
       </div>
 

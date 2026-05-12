@@ -22,7 +22,7 @@ export async function askChainChat(question: string, history: any[]) {
     const chat = ai.chats.create({
       model: "gemini-3-flash-preview",
       config: {
-        systemInstruction: "You are ChainPulse AI, a Web3 analytics assistant. Answer questions about blockchain, tokens, NFTs, and ecosystem growth based on real-time trends.",
+        systemInstruction: "You are the Web3 Analytics assistant. Answer questions about blockchain, tokens, NFTs, and ecosystem growth based on real-time trends.",
       },
     });
 
