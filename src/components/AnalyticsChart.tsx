@@ -1,195 +1,435 @@
-import React, { useState } from 'react';
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer 
-} from 'recharts';
+import React, { useState, useEffect, useRef } from 'react';
+import { TrendingUp, RefreshCw, Layers, ZoomIn, Eye, Activity } from 'lucide-react';
 
-interface ChartDatapoint {
-  name: string;
-  ethPrice: number;
-  ethVolume: number;
-  ethUsers: number;
-  arbPrice: number;
-  arbVolume: number;
-  arbUsers: number;
-  basePrice: number;
-  baseVolume: number;
-  baseUsers: number;
-  solPrice: number;
-  solVolume: number;
-  solUsers: number;
-  suiPrice: number;
-  suiVolume: number;
-  suiUsers: number;
-  polPrice: number;
-  polVolume: number;
-  polUsers: number;
-  opPrice: number;
-  opVolume: number;
-  opUsers: number;
-  aptPrice: number;
-  aptVolume: number;
-  aptUsers: number;
-  atomPrice: number;
-  atomVolume: number;
-  atomUsers: number;
+interface Candle {
+  time: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
 }
 
-// Generate premium historical timeline dataset
-const TIMELINE_DATA: ChartDatapoint[] = [
-  { name: '00:00', ethPrice: 3340, ethVolume: 1200, ethUsers: 240, arbPrice: 1.10, arbVolume: 280, arbUsers: 390, basePrice: 3340, baseVolume: 410, baseUsers: 590, solPrice: 148, solVolume: 610, solUsers: 450, suiPrice: 1.52, suiVolume: 190, suiUsers: 95, polPrice: 0.74, polVolume: 90, polUsers: 54, opPrice: 2.30, opVolume: 120, opUsers: 190, aptPrice: 8.90, aptVolume: 62, aptUsers: 35, atomPrice: 8.42, atomVolume: 32, atomUsers: 14 },
-  { name: '04:00', ethPrice: 3360, ethVolume: 1450, ethUsers: 290, arbPrice: 1.12, arbVolume: 310, arbUsers: 405, basePrice: 3360, baseVolume: 430, baseUsers: 610, solPrice: 151, solVolume: 740, solUsers: 510, suiPrice: 1.58, suiVolume: 220, suiUsers: 110, polPrice: 0.738, polVolume: 95, polUsers: 56, opPrice: 2.34, opVolume: 130, opUsers: 200, aptPrice: 9.10, aptVolume: 68, aptUsers: 42, atomPrice: 8.45, atomVolume: 35, atomUsers: 15 },
-  { name: '08:00', ethPrice: 3340, ethVolume: 1100, ethUsers: 210, arbPrice: 1.11, arbVolume: 290, arbUsers: 380, basePrice: 3340, baseVolume: 390, baseUsers: 570, solPrice: 150, solVolume: 580, solUsers: 410, suiPrice: 1.62, suiVolume: 180, suiUsers: 85, polPrice: 0.732, polVolume: 85, polUsers: 48, opPrice: 2.31, opVolume: 115, opUsers: 180, aptPrice: 9.05, aptVolume: 59, aptUsers: 38, atomPrice: 8.39, atomVolume: 28, atomUsers: 12 },
-  { name: '12:00', ethPrice: 3400, ethVolume: 1850, ethUsers: 350, arbPrice: 1.15, arbVolume: 340, arbUsers: 430, basePrice: 3400, baseVolume: 480, baseUsers: 680, solPrice: 156, solVolume: 910, solUsers: 720, suiPrice: 1.69, suiVolume: 340, suiUsers: 185, polPrice: 0.729, polVolume: 110, polUsers: 65, opPrice: 2.39, opVolume: 155, opUsers: 210, aptPrice: 9.25, aptVolume: 82, aptUsers: 48, atomPrice: 8.41, atomVolume: 42, atomUsers: 18 },
-  { name: '16:00', ethPrice: 3390, ethVolume: 1600, ethUsers: 320, arbPrice: 1.14, arbVolume: 325, arbUsers: 415, basePrice: 3390, baseVolume: 460, baseUsers: 660, solPrice: 154, solVolume: 850, solUsers: 680, suiPrice: 1.74, suiVolume: 290, suiUsers: 150, polPrice: 0.735, polVolume: 105, polUsers: 60, opPrice: 2.37, opVolume: 145, opUsers: 195, aptPrice: 9.18, aptVolume: 74, aptUsers: 45, atomPrice: 8.37, atomVolume: 39, atomUsers: 16 },
-  { name: '20:00', ethPrice: 3450, ethVolume: 2200, ethUsers: 420, arbPrice: 1.17, arbVolume: 360, arbUsers: 440, basePrice: 3450, baseVolume: 510, baseUsers: 720, solPrice: 159, solVolume: 1100, solUsers: 890, suiPrice: 1.81, suiVolume: 410, suiUsers: 220, polPrice: 0.728, polVolume: 125, polUsers: 72, opPrice: 2.42, opVolume: 165, opUsers: 225, aptPrice: 9.35, aptVolume: 95, aptUsers: 55, atomPrice: 8.32, atomVolume: 48, atomUsers: 19 },
-  { name: '24:00', ethPrice: 3485, ethVolume: 2450, ethUsers: 450, arbPrice: 1.18, arbVolume: 380, arbUsers: 465, basePrice: 3485, baseVolume: 540, baseUsers: 740, solPrice: 162.45, solVolume: 1290, solUsers: 950, suiPrice: 1.86, suiVolume: 460, suiUsers: 250, polPrice: 0.725, polVolume: 130, polUsers: 75, opPrice: 2.45, opVolume: 175, opUsers: 240, aptPrice: 9.48, aptVolume: 99, aptUsers: 58, atomPrice: 8.35, atomVolume: 51, atomUsers: 21 },
-];
-
 interface AnalyticsChartProps {
-  selectedChainId?: string; // Optional external filter
+  selectedChainId?: string;
 }
 
 export function AnalyticsChart({ selectedChainId = 'ethereum' }: AnalyticsChartProps) {
-  const [metric, setMetric] = useState<'price' | 'volume' | 'users'>('price');
+  const [timeframe, setTimeframe] = useState<'15M' | '1H' | '4H' | '1D'>('1H');
+  const [chartMode, setChartMode] = useState<'candlestick' | 'mountain'>('candlestick');
+  const [hoveredCandle, setHoveredCandle] = useState<Candle | null>(null);
+  const [hoverPosition, setHoverPosition] = useState<{ x: number; y: number } | null>(null);
+  const [candles, setCandles] = useState<Candle[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Map chosen chain and metric to appropriate keys
-  const getSelectedKey = (chainId: string, selectedMetric: typeof metric) => {
-    const chainPrefixMap: Record<string, string> = {
-      ethereum: 'eth',
-      arbitrum: 'arb',
-      base: 'base',
-      solana: 'sol',
-      sui: 'sui',
-      polygon: 'pol',
-      optimism: 'op',
-      aptos: 'apt',
-      cosmos: 'atom',
-    };
-    const prefix = chainPrefixMap[chainId] || 'eth';
-    
-    if (selectedMetric === 'price') return `${prefix}Price`;
-    if (selectedMetric === 'volume') return `${prefix}Volume`;
-    return `${prefix}Users`;
+  // Price templates based on chains to keep simulation looking 100% real
+  const chainPriceBaselines: Record<string, { base: number; spread: number; volumeBase: number; symbol: string }> = {
+    ethereum: { base: 3485.20, spread: 45, volumeBase: 240, symbol: 'ETH' },
+    arbitrum: { base: 1.18, spread: 0.04, volumeBase: 890, symbol: 'ARB' },
+    base: { base: 3485.20, spread: 50, volumeBase: 350, symbol: 'BASE' },
+    polygon: { base: 0.72, spread: 0.015, volumeBase: 710, symbol: 'POL' },
+    optimism: { base: 2.45, spread: 0.08, volumeBase: 420, symbol: 'OP' },
+    solana: { base: 162.45, spread: 6.5, volumeBase: 1200, symbol: 'SOL' },
+    sui: { base: 1.86, spread: 0.06, volumeBase: 950, symbol: 'SUI' },
+    aptos: { base: 9.48, spread: 0.25, volumeBase: 310, symbol: 'APT' },
+    cosmos: { base: 8.35, spread: 0.18, volumeBase: 190, symbol: 'ATOM' },
   };
 
-  const getMetricColor = (chainId: string) => {
-    const colorMap: Record<string, string> = {
-      ethereum: '#6366f1', // Indigo
-      arbitrum: '#3b82f6', // Electric Blue
-      base: '#0052ff', // Royal Blue
-      solana: '#14f195', // Emerald
-      sui: '#38bdf8', // Sky
-      polygon: '#a855f7', // Purple
-      optimism: '#ff0420', // Red
-      aptos: '#ff2d55', // Pink
-      cosmos: '#ff79c6', // Pastel Pink
-    };
-    return colorMap[chainId] || '#6366f1';
+  const currentChainConfig = chainPriceBaselines[selectedChainId] || chainPriceBaselines.ethereum;
+
+  // Generate historical candle series
+  useEffect(() => {
+    const config = currentChainConfig;
+    const size = 26;
+    const generated: Candle[] = [];
+    let prevClose = config.base - (size * (config.spread * 0.15));
+
+    for (let i = 0; i < size; i++) {
+      const open = prevClose;
+      const change = (Math.random() - 0.48) * config.spread;
+      const close = open + change;
+      const high = Math.max(open, close) + (Math.random() * (config.spread * 0.3));
+      const low = Math.min(open, close) - (Math.random() * (config.spread * 0.3));
+      const volume = config.volumeBase + Math.floor(Math.random() * config.volumeBase);
+
+      // Label based on timeframe
+      let timeStr = '';
+      if (timeframe === '15M') {
+        const mins = (i * 15) % 60;
+        const hr = Math.floor((i * 15) / 60) % 24;
+        timeStr = `${hr.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+      } else if (timeframe === '1H') {
+        timeStr = `${(i % 24).toString().padStart(2, '0')}:00`;
+      } else if (timeframe === '4H') {
+        timeStr = `${((i * 4) % 24).toString().padStart(2, '0')}:00`;
+      } else {
+        timeStr = `May ${15 + i % 12}`;
+      }
+
+      generated.push({ time: timeStr, open, high, low, close, volume });
+      prevClose = close;
+    }
+
+    setCandles(generated);
+    setHoveredCandle(null);
+  }, [selectedChainId, timeframe]);
+
+  // Real-time tick generator blinks prices and updates active candles
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCandles((prev) => {
+        if (prev.length === 0) return prev;
+        const next = [...prev];
+        const lastIndex = next.length - 1;
+        const current = next[lastIndex];
+
+        // Random subtle oscillation
+        const wigglePrice = (Math.random() - 0.5) * (currentChainConfig.spread * 0.04);
+        const newClose = parseFloat((current.close + wigglePrice).toFixed(4));
+        const newHigh = parseFloat(Math.max(current.high, newClose).toFixed(4));
+        const newLow = parseFloat(Math.min(current.low, newClose).toFixed(4));
+
+        next[lastIndex] = {
+          ...current,
+          close: newClose,
+          high: newHigh,
+          low: newLow,
+          volume: current.volume + Math.floor(Math.random() * 5)
+        };
+
+        return next;
+      });
+    }, 1200);
+
+    return () => clearInterval(interval);
+  }, [selectedChainId, currentChainConfig]);
+
+  // Handle mouse move inside svg for custom crosshair logic
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    if (!containerRef.current || candles.length === 0) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    setHoverPosition({ x, y });
+
+    // Deduce which candle is hovered based on X position dividing width
+    const svgWidth = rect.width;
+    const candleWidth = svgWidth / candles.length;
+    const hoverIndex = Math.floor(x / candleWidth);
+
+    if (hoverIndex >= 0 && hoverIndex < candles.length) {
+      setHoveredCandle(candles[hoverIndex]);
+    } else {
+      setHoveredCandle(null);
+    }
   };
 
-  const activeKey = getSelectedKey(selectedChainId, metric);
-  const strokeColor = getMetricColor(selectedChainId);
-
-  const formatTooltipValue = (value: number) => {
-    if (metric === 'price') return `$${value.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
-    if (metric === 'volume') return `$${value.toLocaleString()}M`;
-    return `${value.toLocaleString()}`;
+  const handleMouseLeave = () => {
+    setHoverPosition(null);
+    setHoveredCandle(null);
   };
+
+  // Helper values for drawing SVG coordinates
+  const highestPrice = Math.max(...candles.map((c) => c.high));
+  const lowestPrice = Math.min(...candles.map((c) => c.low));
+  const highestVolume = Math.max(...candles.map((c) => c.volume));
+  const priceRange = highestPrice - lowestPrice || 1;
+
+  // Convert price coordinate to Y coordinate pixels
+  const getPriceY = (price: number, height: number) => {
+    // Reserve 12% space at the top and bottom
+    const pad = height * 0.12;
+    const usableHeight = height - (pad * 2);
+    return pad + usableHeight * (1 - (price - lowestPrice) / priceRange);
+  };
+
+  const displayCandle = hoveredCandle || (candles.length > 0 ? candles[candles.length - 1] : null);
+  const changePercent = displayCandle 
+    ? ((displayCandle.close - displayCandle.open) / displayCandle.open) * 100 
+    : 0;
+  const isBullish = displayCandle ? displayCandle.close >= displayCandle.open : true;
 
   return (
-    <div className="w-full h-full flex flex-col justify-between">
-      {/* Chart controls */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6 z-10">
-        <div className="flex gap-1.5 p-1 bg-black/40 border border-white/[0.05] rounded-xl">
-          <button 
-            onClick={() => setMetric('price')}
-            className={`px-4 py-1.5 rounded-lg text-xs font-mono font-bold tracking-wider transition-all ${metric === 'price' ? 'bg-[#8b5cf6]/20 text-indigo-300 border border-indigo-500/30' : 'text-white/40 hover:text-white/80'}`}
-          >
-            PRICE
-          </button>
-          <button 
-            onClick={() => setMetric('volume')}
-            className={`px-4 py-1.5 rounded-lg text-xs font-mono font-bold tracking-wider transition-all ${metric === 'volume' ? 'bg-[#8b5cf6]/20 text-indigo-300 border border-indigo-500/30' : 'text-white/40 hover:text-white/80'}`}
-          >
-            VOLUME
-          </button>
-          <button 
-            onClick={() => setMetric('users')}
-            className={`px-4 py-1.5 rounded-lg text-xs font-mono font-bold tracking-wider transition-all ${metric === 'users' ? 'bg-[#8b5cf6]/20 text-indigo-300 border border-indigo-500/30' : 'text-white/40 hover:text-white/80'}`}
-          >
-            TPS / USERS
-          </button>
+    <div className="w-full flex flex-col h-full select-none" ref={containerRef}>
+      {/* HUD (Heads-Up Display) Metrics Bar */}
+      <div className="flex flex-wrap items-center justify-between border-b border-white/[0.04] pb-4 mb-5 gap-4">
+        {/* Timeframes */}
+        <div className="flex items-center gap-1.5 p-1 bg-[#090812] border border-white/5 rounded-xl">
+          {(['15M', '1H', '4H', '1D'] as const).map((tf) => (
+            <button
+              key={tf}
+              onClick={() => setTimeframe(tf)}
+              className={`px-3.5 py-1.5 font-mono text-[10px] font-black tracking-widest rounded-lg transition-all cursor-pointer ${timeframe === tf ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-400/25 shadow-[0_0_12px_rgba(34,211,238,0.1)]' : 'text-zinc-500 hover:text-white hover:bg-white/[0.02]'}`}
+            >
+              {tf}
+            </button>
+          ))}
         </div>
 
-        <div className="text-[10px] text-white/30 font-mono flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: strokeColor }} />
-          <span>CYBER_FEED: ACTIVE REAL-TIME STREAMING ({selectedChainId.toUpperCase()})</span>
+        {/* HUD values */}
+        {displayCandle && (
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 font-mono text-[10px]">
+            <span className="text-[#a855f7] font-black uppercase text-[9px] tracking-wider tracking-[0.15em]">
+              {hoveredCandle ? '// CURSOR' : '// LIVE FEED'}
+            </span>
+            <div className="flex items-center gap-1">
+              <span className="text-zinc-500 text-[9px]">O</span>
+              <span className="text-zinc-200 font-extrabold">${displayCandle.open.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-zinc-500 text-[9px]">H</span>
+              <span className="text-emerald-400 font-extrabold">${displayCandle.high.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-zinc-500 text-[9px]">L</span>
+              <span className="text-rose-400 font-extrabold">${displayCandle.low.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="text-zinc-500 text-[9px]">C</span>
+              <span className={`font-black ${isBullish ? 'text-cyan-400' : 'text-pink-500'}`}>
+                ${displayCandle.close.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white/[0.02] border border-white/5">
+              <span className="text-zinc-500 text-[9px]">VOL</span>
+              <span className="text-zinc-300 font-extrabold">{displayCandle.volume.toLocaleString()}{currentChainConfig.symbol}</span>
+            </div>
+            <span className={`font-extrabold tracking-wide ${changePercent >= 0 ? 'text-cyan-400' : 'text-pink-500'}`}>
+              {changePercent >= 0 ? '+' : ''}{changePercent.toFixed(2)}%
+            </span>
+          </div>
+        )}
+
+        {/* Display options */}
+        <div className="hidden sm:flex items-center gap-1 p-1 bg-[#090812] border border-white/5 rounded-xl">
+          <button
+            onClick={() => setChartMode('candlestick')}
+            className={`px-3 py-1 text-[9px] font-mono font-black tracking-widest rounded-lg transition-all cursor-pointer ${chartMode === 'candlestick' ? 'bg-[#ff2d55]/10 text-pink-400 border border-pink-500/20' : 'text-zinc-500 hover:text-zinc-100'}`}
+          >
+            CANDLES
+          </button>
+          <button
+            onClick={() => setChartMode('mountain')}
+            className={`px-3 py-1 text-[9px] font-mono font-black tracking-widest rounded-lg transition-all cursor-pointer ${chartMode === 'mountain' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'text-zinc-500 hover:text-zinc-100'}`}
+          >
+            MOUNTAIN
+          </button>
         </div>
       </div>
 
-      <div className="flex-1 min-h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={TIMELINE_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <defs>
-              <linearGradient id="gradientActive" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={strokeColor} stopOpacity={0.4}/>
-                <stop offset="95%" stopColor={strokeColor} stopOpacity={0.0}/>
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.02)" vertical={false} />
-            <XAxis 
-              dataKey="name" 
-              stroke="rgba(255,255,255,0.15)" 
-              fontSize={10} 
-              tickLine={false} 
-              axisLine={false} 
-              dy={10}
-              className="font-mono"
-            />
-            <YAxis 
-              stroke="rgba(255,255,255,0.15)" 
-              fontSize={10} 
-              tickLine={false} 
-              axisLine={false} 
-              tickFormatter={(value) => {
-                if (metric === 'price') {
-                  return value >= 1000 ? `$${(value/1000).toFixed(1)}k` : `$${value}`;
-                }
-                if (metric === 'volume') return `$${value}M`;
-                return value;
-              }}
-              className="font-mono"
-            />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: '#0a0a14', 
-                border: `1px solid ${strokeColor}40`,
-                borderRadius: '16px',
-                fontSize: '11px',
-                fontFamily: 'JetBrains Mono',
-                boxShadow: `0 0 20px ${strokeColor}15`
-              }}
-              labelStyle={{ color: 'rgba(255,255,255,0.4)', marginBottom: '4px' }}
-              itemStyle={{ color: '#ffffff' }}
-              formatter={(value) => [formatTooltipValue(Number(value)), metric.toUpperCase()]}
-            />
-            <Area 
-              type="monotone" 
-              dataKey={activeKey} 
-              stroke={strokeColor} 
-              fillOpacity={1} 
-              fill="url(#gradientActive)" 
-              strokeWidth={3}
-              activeDot={{ r: 6, strokeWidth: 0, fill: strokeColor }}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+      {/* Main Graph SVG Stage */}
+      <div className="flex-1 relative min-h-[280px]">
+        {/* Background Grid Labels */}
+        <div className="absolute top-0 bottom-0 right-0 w-16 p-2 border-l border-white/[0.03] flex flex-col justify-between font-mono text-[8px] text-zinc-550 pointer-events-none z-0">
+          <span>${highestPrice.toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>
+          <span>${(lowestPrice + priceRange * 0.75).toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>
+          <span>${(lowestPrice + priceRange * 0.5).toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>
+          <span>${(lowestPrice + priceRange * 0.25).toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>
+          <span>${lowestPrice.toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>
+        </div>
+
+        {candles.length > 0 && (
+          <svg
+            className="w-full h-full cursor-crosshair overflow-visible z-10 relative"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
+            {/* Real SVG rendering context */}
+            <g>
+              {/* Vertical grids / borders */}
+              {candles.map((candle, idx) => {
+                const candleWidth = 100 / candles.length;
+                const pctX = (idx + 0.5) * candleWidth;
+                return (
+                  <line
+                    key={`grid-${idx}`}
+                    x1={`${pctX}%`}
+                    y1="4%"
+                    x2={`${pctX}%`}
+                    y2="96%"
+                    stroke="rgba(255,255,255,0.015)"
+                    strokeWidth="1"
+                    strokeDasharray="2 3"
+                  />
+                );
+              })}
+
+              {/* Horizontal rule indicators */}
+              {[0.25, 0.5, 0.75].map((level, idx) => (
+                <line
+                  key={`h-grid-${idx}`}
+                  x1="0%"
+                  y1={`${level * 100}%`}
+                  x2="100%"
+                  y2={`${level * 100}%`}
+                  stroke="rgba(255,255,255,0.01)"
+                  strokeWidth="1"
+                />
+              ))}
+
+              {/* Volume Bars overlay along bottom */}
+              {candles.map((candle, idx) => {
+                const wPct = 85 / candles.length;
+                const spacingPct = 100 / candles.length;
+                const pctX = (idx * spacingPct) + ((spacingPct - wPct) / 2);
+                const barHeight = (candle.volume / highestVolume) * 45; // max 45px tall
+                const isGreen = candle.close >= candle.open;
+
+                return (
+                  <rect
+                    key={`vol-${idx}`}
+                    x={`${pctX}%`}
+                    y={`${100 - barHeight - 4}%`} // offset by bottom boundary
+                    width={`${wPct}%`}
+                    height={`${barHeight}%`}
+                    fill={isGreen ? 'rgba(34, 211, 238, 0.12)' : 'rgba(239, 68, 68, 0.12)'}
+                    stroke={isGreen ? 'rgba(34, 211, 238, 0.25)' : 'rgba(239, 68, 68, 0.25)'}
+                    strokeWidth="0.5"
+                  />
+                );
+              })}
+
+              {/* Mountain Mode vs Candlestick Mode rendering paths */}
+              {chartMode === 'mountain' ? (
+                <>
+                  {/* Glowing gradient mountain area fill */}
+                  <path
+                    d={`
+                      M 0 300
+                      ${candles.map((c, idx) => {
+                        const pctX = (idx / (candles.length - 1)) * 100;
+                        // Mock standard width scaling height
+                        const y = getPriceY(c.close, 250);
+                        return `L ${pctX}% ${y}`;
+                      }).join(' ')}
+                      L 100% 300 Z
+                    `}
+                    fill="url(#mountainGrad)"
+                    stroke="none"
+                  />
+                  
+                  {/* Core Mountain Path Line */}
+                  <path
+                    d={candles.map((c, idx) => {
+                      const pctX = (idx / (candles.length - 1)) * 100;
+                      const y = getPriceY(c.close, 250);
+                      return `${idx === 0 ? 'M' : 'L'} ${pctX}% ${y}`;
+                    }).join(' ')}
+                    fill="none"
+                    stroke="#8b5cf6"
+                    strokeWidth="3.5"
+                    className="drop-shadow-[0_0_12px_#8b5cf6]"
+                  />
+
+                  {/* Gradient declarations */}
+                  <defs>
+                    <linearGradient id="mountainGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.45" />
+                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.0" />
+                    </linearGradient>
+                  </defs>
+                </>
+              ) : (
+                /* Candlestick Mode: Draw wicks & candle bodies */
+                candles.map((candle, idx) => {
+                  const spacingPct = 100 / candles.length;
+                  const pctX = (idx + 0.5) * spacingPct;
+                  
+                  const yHigh = getPriceY(candle.high, 250);
+                  const yLow = getPriceY(candle.low, 250);
+                  const yOpen = getPriceY(candle.open, 250);
+                  const yClose = getPriceY(candle.close, 250);
+                  
+                  const isUp = candle.close >= candle.open;
+                  const bodyY = Math.min(yOpen, yClose);
+                  const bodyHeight = Math.max(Math.abs(yOpen - yClose), 1.5); // min 1.5px tall for flat candles
+                  const wPct = 68 / candles.length; // candle width with gap padding
+                  const bodyXPct = (idx * spacingPct) + ((spacingPct - wPct) / 2);
+
+                  // Colors: Bullish = vibrant cyan shadow, Bearish = neon magenta shadow
+                  const neonColor = isUp ? '#22d3ee' : '#ff5fc0';
+
+                  return (
+                    <g key={`candle-${idx}`} className="transition-all duration-300">
+                      {/* Wick Line */}
+                      <line
+                        x1={`${pctX}%`}
+                        y1={yHigh}
+                        x2={`${pctX}%`}
+                        y2={yLow}
+                        stroke={neonColor}
+                        strokeWidth="1.2"
+                      />
+                      
+                      {/* Candle Body Rect */}
+                      <rect
+                        x={`${bodyXPct}%`}
+                        y={bodyY}
+                        width={`${wPct}%`}
+                        height={bodyHeight}
+                        fill={isUp ? 'rgba(34, 211, 238, 0.35)' : 'rgba(255, 95, 192, 0.35)'}
+                        stroke={neonColor}
+                        strokeWidth="1.5"
+                        rx="1.5"
+                        style={{
+                          filter: `drop-shadow(0 0 4px ${neonColor}35)`
+                        }}
+                      />
+                    </g>
+                  );
+                })
+              )}
+
+              {/* Hover Crosshair Overlay */}
+              {hoverPosition && (
+                <g>
+                  {/* Vertical Hover Line */}
+                  <line
+                    x1={hoverPosition.x}
+                    y1={0}
+                    x2={hoverPosition.x}
+                    y2="100%"
+                    stroke="rgba(255, 255, 255, 0.15)"
+                    strokeWidth="1"
+                    strokeDasharray="3 3"
+                    className="pointer-events-none"
+                  />
+                  {/* Horizontal Hover Line */}
+                  <line
+                    x1={0}
+                    y1={hoverPosition.y}
+                    x2="100%"
+                    y2={hoverPosition.y}
+                    stroke="rgba(255, 255, 255, 0.15)"
+                    strokeWidth="1"
+                    strokeDasharray="3 3"
+                    className="pointer-events-none"
+                  />
+                  {/* Hover Marker Dot */}
+                  <circle
+                    cx={hoverPosition.x}
+                    cy={hoverPosition.y}
+                    r="5"
+                    fill="#ff2d55"
+                    stroke="#ffffff"
+                    strokeWidth="1.5"
+                    className="animate-ping pointer-events-none"
+                  />
+                </g>
+              )}
+            </g>
+          </svg>
+        )}
+      </div>
+
+      {/* X Axis Time Labels */}
+      <div className="flex justify-between px-2 pt-3 border-t border-white/[0.03] font-mono text-[8px] text-zinc-500 uppercase tracking-widest select-none bg-black/10 rounded-b-xl">
+        <span>{candles[0]?.time}</span>
+        <span>{candles[Math.floor(candles.length / 4)]?.time}</span>
+        <span>{candles[Math.floor(candles.length / 2)]?.time}</span>
+        <span>{candles[Math.floor(candles.length * 0.75)]?.time}</span>
+        <span>{candles[candles.length - 1]?.time}</span>
       </div>
     </div>
   );

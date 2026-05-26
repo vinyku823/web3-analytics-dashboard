@@ -38,9 +38,32 @@ import { NFTDashboard } from './NFTDashboard';
 import { TokensDashboard } from './TokensDashboard';
 import { EcosystemsDashboard } from './EcosystemsDashboard';
 import { AIChatDashboard } from './AIChatDashboard';
+import { ShelbyLogo } from './ShelbyLogo';
 
 // Mock datasets
 import { ECOSYSTEMS, MOCK_LIVE_TX, LiveTx, Ecosystem, TRENDING_TOKENS, NFT_COLLECTIONS } from '../data/mockData';
+
+// Custom high-fidelity logo vector assets for hot switchboard
+const PhantomLogo = ({ className = "w-5 h-5" }: { className?: string }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16 2a14 14 0 00-14 14 14 14 0 0014 14 14 14 0 0014-14A14 14 0 0016 2zm4.5 13a2.5 2.5 0 110-5 2.5 2.5 0 010 5zm-9 0a2.5 2.5 0 110-5 2.5 2.5 0 010 5z" fill="#AB92F6"/>
+    <path d="M16 26c4.5 0 8-3.5 8-8H8c0 4.5 3.5 8 8 8z" fill="#4B3B8B"/>
+  </svg>
+);
+
+const PetraLogo = ({ className = "w-4.5 h-4.5" }: { className?: string }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16 2L4 14l12 14 12-14L16 2z" fill="#ff2d55"/>
+    <path d="M15.5 8l-7.5 7.5 7.5 7.5 7.5-7.5-7.5-7.5z" fill="#ffffff" fillOpacity="0.45"/>
+  </svg>
+);
+
+const SuietLogo = ({ className = "w-4.5 h-4.5" }: { className?: string }) => (
+  <svg viewBox="0 0 32 32" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16 2C8.28 2 2 8.28 2 16c0 5.42 3.07 10.12 7.6 12.4l1.37-3.2A10.95 10.95 0 016 16c0-5.52 4.48-11 10-11s10 5.48 10 11c0 3.73-2.03 6.98-5.04 8.7l1.37 3.2c4.56-2.28 7.67-6.98 7.67-12.4 0-7.72-6.28-14-14-14z" fill="#38bdf8"/>
+    <path d="M16 11a5 5 0 100 10 5 5 0 000-10z" fill="#38bdf8" fillOpacity="0.4"/>
+  </svg>
+);
 
 // Custom high-fidelity MetaMask Fox SVG logo
 const MetaMaskLogo = ({ className = "w-5 h-5" }: { className?: string }) => (
@@ -71,6 +94,7 @@ export function Dashboard() {
   });
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false);
+  const [networkEnvironment, setNetworkEnvironment] = useState<'mainnet' | 'testnet'>('mainnet');
 
   const isUserConnected = isRealEvmConnected || !!sessionWallet;
   const activeAddress = realEvmAddress || sessionAddress;
@@ -200,19 +224,20 @@ export function Dashboard() {
           className="max-w-4xl z-10 p-8 sm:p-12 glass rounded-[3rem] border-white/5 shadow-2xl relative"
         >
           {/* Cyber accents corners */}
-          <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-amber-500 rounded-tl-xl" />
+          <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-pink-500 rounded-tl-xl" />
           <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-cyan-400 rounded-tr-xl" />
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-pink-500 rounded-bl-xl" />
+          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-purple-500 rounded-bl-xl" />
           <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#ff2d55] rounded-br-xl" />
 
-          <div className="mb-6 inline-flex items-center justify-center p-4.5 rounded-3xl bg-amber-500/10 border border-amber-500/25 shadow-[0_0_20px_rgba(245,158,11,0.15)]">
-            <Cpu className="w-9 h-9 text-amber-400" />
+          <div className="mb-6 inline-flex items-center justify-center relative group p-3 rounded-[2rem] bg-pink-500/10 border border-pink-500/20 shadow-[0_0_25px_rgba(255,95,192,0.15)]">
+            <ShelbyLogo size={65} className="shadow-[0_0_30px_rgba(255,95,192,0.3)] transition-transform duration-700 group-hover:rotate-[120deg]" />
+            <div className="absolute inset-x-0 h-0.5 bg-cyan-400 blur-sm top-1/2 -translate-y-1/2 opacity-30 group-hover:opacity-60 transition-opacity" />
           </div>
           
-          <span className="text-[10px] font-mono tracking-[0.3em] text-amber-400 uppercase block mb-3">
-            PREMIUM MULTI-CHAIN QUANT STATS
+          <span className="text-[10px] font-mono tracking-[0.3em] text-pink-400 uppercase block mb-3">
+            PREMIUM MULTI-CHAIN QUANT SYSTEMS
           </span>
-          <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight bg-gradient-to-r from-white via-amber-200 to-amber-500 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight bg-gradient-to-r from-white via-pink-200 to-[#ff5fc0] bg-clip-text text-transparent">
             SHELBY ANALYTICS
           </h1>
           <p className="text-xs md:text-sm text-zinc-400 mb-8 leading-relaxed max-w-xl mx-auto font-sans">
@@ -250,110 +275,215 @@ export function Dashboard() {
       
       {/* Main Container */}
       <main className="flex-1 lg:pl-80 p-6 lg:p-10 transition-all">
-        {/* Holographic Header */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6 border-b border-white/[0.04] pb-6">
+        {/* Holographic Header with Premium Multi-Chain Wallet Status Integration */}
+        <header className="flex flex-col xl:flex-row xl:items-start justify-between mb-10 gap-6 border-b border-white/[0.04] pb-8">
           <div>
-            <span className="text-[9px] font-mono tracking-[0.25em] text-cyan-400 uppercase flex items-center gap-2 mb-1.5">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-              CYBERNETIC RPC INGRESS GATEWAY
+            <span className="text-[9px] font-mono tracking-[0.25em] text-pink-500 uppercase flex items-center gap-2 mb-1.5 font-black">
+              <span className="w-2 h-2 rounded-full bg-pink-500 animate-ping shadow-[0_0_8px_#ff5fc0]" />
+              CYBERNETIC RPC INGRESS NODE ACTIVE
             </span>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-white flex items-center gap-3">
-              <Hexagon className="w-6 h-6 text-indigo-400 animate-spin" style={{ animationDuration: '8s' }} />
-              {activeTab === 'home' ? 'GLOBAL OVERVIEW' : activeTab.toUpperCase()}
-            </h2>
+            <div className="flex items-center gap-3">
+              <div className="relative flex-shrink-0">
+                <ShelbyLogo size={34} className="shadow-[0_0_15px_rgba(255,95,192,0.3)]" />
+                <div className="absolute inset-0 bg-[#ff5fc0] rounded-[10px] blur-md opacity-25" />
+              </div>
+              <h2 className="text-2xl font-black uppercase tracking-tight text-white font-sans">
+                {activeTab === 'home' ? 'GLOBAL OVERVIEW' : activeTab.toUpperCase()}
+              </h2>
+            </div>
+            <p className="text-[10px] text-zinc-500 font-mono mt-1.5 uppercase tracking-wider">
+              ESTABLISHED TUNNEL: <span className="text-zinc-300 font-bold">{currentTime}</span>
+            </p>
           </div>
           
-          <div className="flex flex-col sm:items-end gap-3.5">
-            {isUserConnected ? (
-              <div className="flex flex-col items-stretch sm:items-end w-full sm:w-auto relative">
-                {/* Connected Wallet Row */}
-                <div className="flex items-center justify-between sm:justify-end gap-3.5">
-                  <div className="p-2 bg-white/[0.02] border border-white/[0.05] rounded-xl font-mono text-[9px] text-zinc-550 hidden md:block">
-                    {currentTime}
-                  </div>
+          <div className="flex flex-col items-stretch md:items-end gap-4 w-full xl:w-auto">
+            {isUserConnected && (
+              <div className="flex flex-col items-stretch md:items-end w-full gap-3.5">
+                {/* 1. Connect Wallet: Hot Wallet Switchboard */}
+                <div className="flex flex-col gap-1.5 w-full">
+                  <span className="text-[8px] font-mono tracking-widest text-zinc-550 uppercase font-bold text-left md:text-right">
+                    // CRYPTO HOT WALLET CONTROL (ONLY ONE ACTIVE)
+                  </span>
                   
-                  <div className="flex items-center gap-2.5 px-4.5 py-2.5 rounded-2xl bg-[#090812]/90 border border-white/5 text-[10px] sm:text-xs font-mono font-black tracking-wider text-zinc-100 shadow-[0_0_20px_rgba(255,45,85,0.03)] backdrop-blur-md">
-                    {sessionWallet === 'metamask' ? (
-                      <MetaMaskLogo className="w-5 h-5 flex-shrink-0 animate-pulse" />
-                    ) : (
-                      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${sessionWallet === 'petra' ? 'bg-[#ff2d55]' : 'bg-cyan-400'} animate-pulse shadow-[0_0_6px_currentColor]`} />
-                    )}
-                    <span className="uppercase text-white font-black">{sessionWallet || 'EVM'} Connected</span>
-                    <span className="text-zinc-400 font-normal">({activeAddress.slice(0, 6)}...{activeAddress.slice(-4)})</span>
-                  </div>
+                  <div className="grid grid-cols-2 md:flex md:flex-row items-center gap-2.5 p-2 bg-[#090812]/90 border border-white/5 rounded-2xl backdrop-blur-md shadow-2xl">
+                    {/* MetaMask EVM */}
+                    <button
+                      onClick={() => handleConnect('metamask')}
+                      className={`flex items-center justify-between gap-3 px-3 py-2 rounded-xl border transition-all text-left font-mono text-[9px] cursor-pointer ${
+                        sessionWallet === 'metamask'
+                          ? 'bg-[#E2761B]/10 border-[#E2761B]/55 text-white shadow-[0_0_12px_rgba(226,118,27,0.15)] font-black'
+                          : 'bg-transparent border-transparent hover:bg-white/[0.02] text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <MetaMaskLogo className="w-4 h-4 flex-shrink-0" />
+                        <div className="leading-tight">
+                          <span className="block uppercase tracking-wider">MetaMask</span>
+                          <span className="text-[7px] text-zinc-500 font-normal">Ethereum & EVM</span>
+                        </div>
+                      </div>
+                      <span className={`w-1.5 h-1.5 rounded-full ${sessionWallet === 'metamask' ? 'bg-[#E2761B] animate-pulse shadow-[0_0_6px_#E2761B]' : 'bg-zinc-700'}`} />
+                    </button>
 
-                  <button
-                    onClick={handleDisconnect}
-                    className="p-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/25 rounded-2xl transition-all font-mono text-[9px] font-black tracking-widest cursor-pointer"
-                    title="Disconnect Wallet"
-                  >
-                    DISCONNECT
-                  </button>
+                    {/* Phantom Solana */}
+                    <button
+                      onClick={() => handleConnect('phantom')}
+                      className={`flex items-center justify-between gap-3 px-3 py-2 rounded-xl border transition-all text-left font-mono text-[9px] cursor-pointer ${
+                        sessionWallet === 'phantom'
+                          ? 'bg-[#AB92F6]/10 border-[#AB92F6]/55 text-white shadow-[0_0_12px_rgba(171,146,246,0.15)] font-black'
+                          : 'bg-transparent border-transparent hover:bg-white/[0.02] text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <PhantomLogo className="w-4 h-4 flex-shrink-0" />
+                        <div className="leading-tight">
+                          <span className="block uppercase tracking-wider">Phantom</span>
+                          <span className="text-[7px] text-zinc-500 font-normal">Solana VM</span>
+                        </div>
+                      </div>
+                      <span className={`w-1.5 h-1.5 rounded-full ${sessionWallet === 'phantom' ? 'bg-[#AB92F6] animate-pulse shadow-[0_0_6px_#AB92F6]' : 'bg-zinc-700'}`} />
+                    </button>
+
+                    {/* Petra Aptos */}
+                    <button
+                      onClick={() => handleConnect('petra')}
+                      className={`flex items-center justify-between gap-3 px-3 py-2 rounded-xl border transition-all text-left font-mono text-[9px] cursor-pointer ${
+                        sessionWallet === 'petra'
+                          ? 'bg-[#ff2d55]/10 border-[#ff2d55]/55 text-white shadow-[0_0_12px_rgba(255,45,85,0.15)] font-black'
+                          : 'bg-transparent border-transparent hover:bg-white/[0.02] text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <PetraLogo className="w-4 h-4 flex-shrink-0" />
+                        <div className="leading-tight">
+                          <span className="block uppercase tracking-wider">Petra</span>
+                          <span className="text-[7px] text-zinc-500 font-normal">Aptos Move</span>
+                        </div>
+                      </div>
+                      <span className={`w-1.5 h-1.5 rounded-full ${sessionWallet === 'petra' ? 'bg-[#ff2d55] animate-pulse shadow-[0_0_6px_#ff2d55]' : 'bg-zinc-700'}`} />
+                    </button>
+
+                    {/* Suiet Sui */}
+                    <button
+                      onClick={() => handleConnect('sui')}
+                      className={`flex items-center justify-between gap-3 px-3 py-2 rounded-xl border transition-all text-left font-mono text-[9px] cursor-pointer ${
+                        sessionWallet === 'sui'
+                          ? 'bg-[#38bdf8]/10 border-[#38bdf8]/55 text-white shadow-[0_0_12px_rgba(56,189,248,0.15)] font-black'
+                          : 'bg-transparent border-transparent hover:bg-white/[0.02] text-zinc-400 hover:text-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <SuietLogo className="w-4 h-4 flex-shrink-0" />
+                        <div className="leading-tight">
+                          <span className="block uppercase tracking-wider">Suiet</span>
+                          <span className="text-[7px] text-zinc-500 font-normal">Sui Ledger</span>
+                        </div>
+                      </div>
+                      <span className={`w-1.5 h-1.5 rounded-full ${sessionWallet === 'sui' ? 'bg-[#38bdf8] animate-pulse shadow-[0_0_6px_#38bdf8]' : 'bg-zinc-700'}`} />
+                    </button>
+
+                    {/* Disconnect helper */}
+                    <button
+                      onClick={handleDisconnect}
+                      className="px-2.5 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-mono text-[8px] font-black tracking-widest border border-red-500/20 hover:border-red-500/40 rounded-xl transition-all uppercase col-span-2 md:col-span-1 cursor-pointer"
+                    >
+                      OFF
+                    </button>
+                  </div>
                 </div>
 
-                {/* Chain Selector dropdown active under wallet */}
-                <div className="mt-2.5 w-full sm:w-72 relative">
-                  <button
-                    onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)}
-                    className="w-full flex items-center justify-between gap-2.5 px-4 py-2.5 text-[10px] font-mono font-black tracking-widest text-[#06b6d4] hover:text-cyan-300 bg-cyan-950/20 hover:bg-cyan-950/40 border border-cyan-500/35 hover:border-cyan-400 rounded-2xl transition-all shadow-[0_0_20px_rgba(6,182,212,0.15)] backdrop-blur-md relative overflow-hidden group cursor-pointer"
-                  >
-                    <span className="flex items-center gap-2 uppercase">
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee]" />
-                      EVM NET: <span className="text-white font-extrabold">{selectedChain.name}</span>
-                    </span>
-                    <div className="flex items-center gap-1">
-                      <span className="text-[8px] bg-cyan-500/10 px-1.5 py-0.5 rounded text-cyan-300 border border-cyan-500/20 font-bold uppercase">Active</span>
-                      <ChevronDown className={`w-3.5 h-3.5 text-cyan-400 transition-transform duration-350 ${isChainDropdownOpen ? 'rotate-180 text-white' : ''}`} />
-                    </div>
-                  </button>
+                {/* 2. Connected Address Status Info Alert */}
+                <div className="text-[9px] font-mono text-[#ff5fc0] text-left md:text-right flex items-center md:justify-end gap-2 px-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_#34d399]" />
+                  <span>ACTIVE ADDRESS: <span className="text-white font-extrabold bg-white/[0.03] px-2 py-0.5 rounded border border-white-5 border-white/5">{activeAddress}</span></span>
+                </div>
 
-                  <AnimatePresence>
-                    {isChainDropdownOpen && (
-                      <>
-                        {/* Invisible backdrop clickout helper */}
-                        <div className="fixed inset-0 z-40" onClick={() => setIsChainDropdownOpen(false)} />
-                        
-                        <motion.div
-                          initial={{ opacity: 0, y: -8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -8 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute right-0 left-0 mt-2 p-2 bg-[#080710]/95 border border-cyan-500/30 rounded-2xl z-50 shadow-[0_10px_40px_rgba(0,0,0,0.95)] backdrop-blur-xl max-h-60 overflow-y-auto font-mono text-[10px] space-y-1"
-                        >
-                          <div className="px-3 py-1 text-[8px] tracking-wider text-zinc-500 block uppercase font-bold border-b border-white/[0.04] mb-1">
-                            Available EVM Networks
-                          </div>
-                          {ECOSYSTEMS.map((chain) => {
-                            const isEvm = ['ethereum', 'arbitrum', 'base', 'polygon', 'optimism'].includes(chain.id);
-                            return (
-                              <button
-                                key={chain.id}
-                                onClick={() => {
-                                  setSelectedChain(chain);
-                                  setIsChainDropdownOpen(false);
-                                }}
-                                className={`w-full text-left px-3.5 py-2.5 rounded-xl transition-all flex items-center justify-between text-zinc-300 hover:text-white cursor-pointer ${selectedChain.id === chain.id ? 'bg-[#3b82f6]/10 text-cyan-300 border border-[#3b82f6]/30 shadow-[0_0_12px_rgba(59,130,246,0.15)]' : 'hover:bg-white/[0.04] border border-transparent'}`}
-                              >
-                                <span className="uppercase font-extrabold flex items-center gap-2">
-                                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: chain.color }} />
-                                  {chain.name} <span className="text-zinc-500 text-[8px] font-normal">({chain.symbol})</span>
-                                </span>
-                                {isEvm ? (
-                                  <span className="text-[7px] bg-blue-500/15 text-blue-400 border border-blue-500/20 px-1 py-0.2 rounded font-black uppercase">EVM Link</span>
-                                ) : (
-                                  <span className="text-[7px] bg-zinc-500/10 text-zinc-400 border border-zinc-500/10 px-1 py-0.2 rounded uppercase">Non-EVM</span>
-                                )}
-                              </button>
-                            );
-                          })}
-                        </motion.div>
-                      </>
-                    )}
-                  </AnimatePresence>
+                {/* 3. Dropdowns & Environment Selectors (Testnet/Mainnet & Core Channels) */}
+                <div className="flex flex-wrap items-center gap-3.5 md:justify-end">
+                  {/* Mainnet/Testnet selector options */}
+                  <div className="flex items-center gap-1.5 p-1 bg-[#090812] border border-white/5 rounded-2xl relative overflow-hidden">
+                    <button
+                      onClick={() => setNetworkEnvironment('mainnet')}
+                      className={`px-4.5 py-2 font-mono text-[9px] font-black tracking-widest rounded-xl transition-all cursor-pointer ${
+                        networkEnvironment === 'mainnet'
+                          ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-400/20 shadow-[0_0_10px_rgba(6,182,212,0.1)]'
+                          : 'text-zinc-500 hover:text-zinc-200'
+                      }`}
+                    >
+                      MAINNET
+                    </button>
+                    <button
+                      onClick={() => setNetworkEnvironment('testnet')}
+                      className={`px-4.5 py-2 font-mono text-[9px] font-black tracking-widest rounded-xl transition-all cursor-pointer ${
+                        networkEnvironment === 'testnet'
+                          ? 'bg-pink-500/10 text-pink-400 border border-pink-400/20 shadow-[0_0_10px_rgba(255,45,85,0.1)]'
+                          : 'text-zinc-500 hover:text-zinc-200'
+                      }`}
+                    >
+                      TESTNET
+                    </button>
+                  </div>
+
+                  {/* Chain Selector index dropdown */}
+                  <div className="relative w-48 font-mono">
+                    <button
+                      onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)}
+                      className="w-full flex items-center justify-between gap-2.5 px-3.5 py-2 text-[9px] font-black tracking-widest text-cyan-400 hover:text-cyan-300 bg-[#090812] border border-cyan-500/25 rounded-2xl transition-all cursor-pointer"
+                    >
+                      <span className="flex items-center gap-1.5 uppercase">
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: selectedChain.color }} />
+                        CORE: <span className="text-white font-extrabold">{selectedChain.symbol}</span>
+                      </span>
+                      <ChevronDown className={`w-3 h-3 text-cyan-400 transition-transform ${isChainDropdownOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    <AnimatePresence>
+                      {isChainDropdownOpen && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setIsChainDropdownOpen(false)} />
+                          <motion.div
+                            initial={{ opacity: 0, y: -8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            className="absolute right-0 left-0 mt-1.5 p-1.5 bg-[#080710]/95 border border-cyan-500/30 rounded-xl z-50 shadow-2xl backdrop-blur-xl max-h-56 overflow-y-auto text-[9px] space-y-1"
+                          >
+                            <div className="px-2 py-1 text-[7px] text-zinc-500 block uppercase font-bold border-b border-white/[0.04]">
+                              Select Active Sandbox Chain
+                            </div>
+                            {ECOSYSTEMS.map((chain) => {
+                              const isEvm = ['ethereum', 'arbitrum', 'base', 'polygon', 'optimism'].includes(chain.id);
+                              return (
+                                <button
+                                  key={chain.id}
+                                  onClick={() => {
+                                    setSelectedChain(chain);
+                                    setIsChainDropdownOpen(false);
+                                  }}
+                                  className={`w-full text-left px-2.5 py-2 rounded-lg transition-all flex items-center justify-between text-zinc-300 hover:text-white cursor-pointer ${
+                                    selectedChain.id === chain.id
+                                      ? 'bg-cyan-500/10 text-cyan-300 border border-cyan-400/20'
+                                      : 'hover:bg-white/[0.03] border border-transparent'
+                                  }`}
+                                >
+                                  <span className="uppercase font-bold flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: chain.color }} />
+                                    {chain.name}
+                                  </span>
+                                  {isEvm ? (
+                                    <span className="text-[6px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded font-bold uppercase">EVM</span>
+                                  ) : (
+                                    <span className="text-[6px] bg-zinc-500/10 text-zinc-400 border border-zinc-500/10 px-1 rounded uppercase">MOVE</span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               </div>
-            ) : (
-              <ConnectKitButton />
             )}
           </div>
         </header>

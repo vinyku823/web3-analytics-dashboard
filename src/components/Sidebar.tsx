@@ -9,11 +9,11 @@ import {
   Zap, 
   Bell, 
   LogOut,
-  Hexagon,
   Cpu,
   Radio
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { ShelbyLogo } from './ShelbyLogo';
 
 interface SidebarProps {
   activeTab: string;
@@ -33,15 +33,16 @@ export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
 
   return (
     <aside className="w-80 glass border-r border-white/[0.05] fixed h-full hidden lg:flex flex-col z-50 p-6">
-      {/* Spinning branding loader */}
-      <div className="p-4 pb-10">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-indigo-500/10 rounded-2xl flex items-center justify-center border border-indigo-500/30 neon-glow-purple">
-            <Hexagon className="w-6 h-6 text-indigo-400 animate-spin" style={{ animationDuration: '10s' }} />
+      {/* Custom Shelby Pink Logo branding header */}
+      <div className="p-4 pb-8 border-b border-white/[0.04] mb-6">
+        <div className="flex items-center gap-3.5 group cursor-pointer">
+          <div className="relative flex-shrink-0 transition-transform duration-500 group-hover:rotate-[120deg]">
+            <ShelbyLogo size={36} className="shadow-[0_0_15px_rgba(255,95,192,0.4)]" />
+            <div className="absolute inset-0 bg-[#ff5fc0] rounded-[11px] blur-md opacity-25 group-hover:opacity-45 transition-opacity" />
           </div>
           <div>
-            <span className="text-sm font-black tracking-[0.2em] bg-gradient-to-r from-amber-400 via-orange-300 to-white bg-clip-text text-transparent block">SHELBY</span>
-            <span className="text-[8px] font-mono tracking-widest text-amber-500/50 uppercase block">ANALYTICS ENGINE</span>
+            <span className="text-sm font-black tracking-[0.25em] bg-gradient-to-r from-[#ff5fc0] via-cyan-300 to-white bg-clip-text text-transparent block">SHELBY</span>
+            <span className="text-[8px] font-mono tracking-widest text-[#ff5fc0] uppercase block font-black">QUANT MODULE V3</span>
           </div>
         </div>
       </div>
