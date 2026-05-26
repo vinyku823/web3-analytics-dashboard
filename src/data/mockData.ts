@@ -73,6 +73,74 @@ export const ECOSYSTEMS: Ecosystem[] = [
     gradient: 'from-indigo-500 to-indigo-800',
   },
   {
+    id: 'arbitrum',
+    name: 'Arbitrum',
+    symbol: 'ARB',
+    price: '$1.18',
+    change24h: { isPositive: true, value: '+5.12%' },
+    metrics: {
+      tvl: '$15.4B',
+      volume24h: '$320M',
+      activeUsers24h: '420K',
+      avgGas: '0.05 Gwei',
+      speedTps: '185 TPS',
+    },
+    color: '#3b82f6', // Electric Blue
+    glowColor: 'rgba(59, 130, 246, 0.4)',
+    gradient: 'from-blue-500 to-blue-800',
+  },
+  {
+    id: 'base',
+    name: 'Base',
+    symbol: 'BASE',
+    price: '$3,485.20',
+    change24h: { isPositive: true, value: '+11.85%' },
+    metrics: {
+      tvl: '$8.2B',
+      volume24h: '$480M',
+      activeUsers24h: '680K',
+      avgGas: '0.005 Gwei',
+      speedTps: '210 TPS',
+    },
+    color: '#0052ff', // Royal Blue
+    glowColor: 'rgba(0, 82, 255, 0.4)',
+    gradient: 'from-blue-600 to-indigo-900',
+  },
+  {
+    id: 'polygon',
+    name: 'Polygon',
+    symbol: 'POL',
+    price: '$0.72',
+    change24h: { isPositive: false, value: '-1.25%' },
+    metrics: {
+      tvl: '$1.11B',
+      volume24h: '$120M',
+      activeUsers24h: '180K',
+      avgGas: '45 Gwei',
+      speedTps: '68 TPS',
+    },
+    color: '#a855f7', // Purple Neon
+    glowColor: 'rgba(168, 85, 247, 0.4)',
+    gradient: 'from-purple-500 to-violet-800',
+  },
+  {
+    id: 'optimism',
+    name: 'Optimism',
+    symbol: 'OP',
+    price: '$2.45',
+    change24h: { isPositive: true, value: '+4.20%' },
+    metrics: {
+      tvl: '$6.4B',
+      volume24h: '$150M',
+      activeUsers24h: '210K',
+      avgGas: '0.01 Gwei',
+      speedTps: '115 TPS',
+    },
+    color: '#ff0420', // Red Neon
+    glowColor: 'rgba(255, 4, 32, 0.4)',
+    gradient: 'from-red-500 to-red-800',
+  },
+  {
     id: 'solana',
     name: 'Solana',
     symbol: 'SOL',
@@ -105,23 +173,6 @@ export const ECOSYSTEMS: Ecosystem[] = [
     color: '#38bdf8', // Light blue/cyan neon
     glowColor: 'rgba(56, 189, 248, 0.4)',
     gradient: 'from-sky-400 to-blue-600',
-  },
-  {
-    id: 'polygon',
-    name: 'Polygon',
-    symbol: 'POL',
-    price: '$0.72',
-    change24h: { isPositive: false, value: '-1.25%' },
-    metrics: {
-      tvl: '$1.11B',
-      volume24h: '$120M',
-      activeUsers24h: '180K',
-      avgGas: '45 Gwei',
-      speedTps: '68 TPS',
-    },
-    color: '#a855f7', // Purple Neon
-    glowColor: 'rgba(168, 85, 247, 0.4)',
-    gradient: 'from-purple-500 to-violet-800',
   },
   {
     id: 'aptos',
