@@ -27,6 +27,7 @@ import {
   Compass,
   ChevronRight,
   ChevronDown,
+  Coins,
   X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -87,10 +88,10 @@ export function Dashboard() {
 
   // Custom session state supporting Rabby, Phantom, Sui, Petra, Keplr, and MetaMask
   const [sessionWallet, setSessionWallet] = useState<string | null>(() => {
-    return localStorage.getItem('shelby_session_wallet') || 'metamask';
+    return localStorage.getItem('shelby_session_wallet') || 'petra';
   });
   const [sessionAddress, setSessionAddress] = useState<string>(() => {
-    return localStorage.getItem('shelby_session_address') || '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266';
+    return localStorage.getItem('shelby_session_address') || '0x7f4a2c9e1cc152d5bce34709ca118d3f6b91';
   });
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [isChainDropdownOpen, setIsChainDropdownOpen] = useState(false);
@@ -99,8 +100,19 @@ export function Dashboard() {
   const isUserConnected = isRealEvmConnected || !!sessionWallet;
   const activeAddress = realEvmAddress || sessionAddress;
   
+  const formatAddress = (addr: string) => {
+    if (!addr) return '';
+    if (addr.toLowerCase().startsWith('0x7f4a2c9e') || addr.toLowerCase() === '0x7f4a2c9e1cc152d5bce34709ca118d3f6b91') {
+      return '0x7f4a2c9e...8d3f6b91';
+    }
+    if (addr.length > 18) {
+      return `${addr.slice(0, 8)}...${addr.slice(-8)}`;
+    }
+    return addr;
+  };
+  
   const [activeTab, setActiveTab] = useState('home');
-  const [selectedChain, setSelectedChain] = useState<Ecosystem>(ECOSYSTEMS[0]);
+  const [selectedChain, setSelectedChain] = useState<Ecosystem>(() => ECOSYSTEMS.find(e => e.id === 'aptos') || ECOSYSTEMS[0]);
   const [liveTxs, setLiveTxs] = useState<LiveTx[]>(MOCK_LIVE_TX);
   const [currentTime, setCurrentTime] = useState<string>('');
 
@@ -301,12 +313,12 @@ export function Dashboard() {
               <div className="flex flex-col items-stretch md:items-end w-full gap-3.5">
                 {/* 1. Connect Wallet: Hot Wallet Switchboard */}
                 <div className="flex flex-col gap-1.5 w-full">
-                  <span className="text-[8px] font-mono tracking-widest text-zinc-550 uppercase font-bold text-left md:text-right">
+                  <span className="text-[8px] font-mono tracking-widest text-[#ff5fc0]/80 uppercase font-black text-left md:text-right">
                     // CRYPTO HOT WALLET CONTROL (ONLY ONE ACTIVE)
                   </span>
                   
-                  <div className="grid grid-cols-2 md:flex md:flex-row items-center gap-2.5 p-2 bg-[#090812]/90 border border-white/5 rounded-2xl backdrop-blur-md shadow-2xl">
-                    {/* MetaMask EVM */}
+                  <div className="grid grid-cols-2 lg:flex lg:flex-row lg:flex-wrap items-center gap-2.5 p-2 bg-[#090812]/90 border border-white/5 rounded-2xl backdrop-blur-md shadow-2xl">
+                    {/* MetaMask (Ethereum) */}
                     <button
                       onClick={() => handleConnect('metamask')}
                       className={`flex items-center justify-between gap-3 px-3 py-2 rounded-xl border transition-all text-left font-mono text-[9px] cursor-pointer ${
@@ -318,14 +330,18 @@ export function Dashboard() {
                       <div className="flex items-center gap-2">
                         <MetaMaskLogo className="w-4 h-4 flex-shrink-0" />
                         <div className="leading-tight">
-                          <span className="block uppercase tracking-wider">MetaMask</span>
-                          <span className="text-[7px] text-zinc-500 font-normal">Ethereum & EVM</span>
+                          <span className="block uppercase tracking-wider font-extrabold text-white">MetaMask</span>
+                          <span className="text-[7px] text-zinc-500 font-normal">Ethereum</span>
                         </div>
                       </div>
-                      <span className={`w-1.5 h-1.5 rounded-full ${sessionWallet === 'metamask' ? 'bg-[#E2761B] animate-pulse shadow-[0_0_6px_#E2761B]' : 'bg-zinc-700'}`} />
+                      {sessionWallet === 'metamask' ? (
+                        <span className="text-[7.5px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded font-black max-h-4 animate-pulse">Connected</span>
+                      ) : (
+                        <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                      )}
                     </button>
 
-                    {/* Phantom Solana */}
+                    {/* Phantom (Solana) */}
                     <button
                       onClick={() => handleConnect('phantom')}
                       className={`flex items-center justify-between gap-3 px-3 py-2 rounded-xl border transition-all text-left font-mono text-[9px] cursor-pointer ${
@@ -337,33 +353,41 @@ export function Dashboard() {
                       <div className="flex items-center gap-2">
                         <PhantomLogo className="w-4 h-4 flex-shrink-0" />
                         <div className="leading-tight">
-                          <span className="block uppercase tracking-wider">Phantom</span>
-                          <span className="text-[7px] text-zinc-500 font-normal">Solana VM</span>
+                          <span className="block uppercase tracking-wider font-extrabold text-white">Phantom</span>
+                          <span className="text-[7px] text-zinc-500 font-normal">Solana</span>
                         </div>
                       </div>
-                      <span className={`w-1.5 h-1.5 rounded-full ${sessionWallet === 'phantom' ? 'bg-[#AB92F6] animate-pulse shadow-[0_0_6px_#AB92F6]' : 'bg-zinc-700'}`} />
+                      {sessionWallet === 'phantom' ? (
+                        <span className="text-[7.5px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded font-black max-h-4 animate-pulse">Connected</span>
+                      ) : (
+                        <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                      )}
                     </button>
 
-                    {/* Petra Aptos */}
+                    {/* Petra (Aptos) */}
                     <button
                       onClick={() => handleConnect('petra')}
                       className={`flex items-center justify-between gap-3 px-3 py-2 rounded-xl border transition-all text-left font-mono text-[9px] cursor-pointer ${
                         sessionWallet === 'petra'
-                          ? 'bg-[#ff2d55]/10 border-[#ff2d55]/55 text-white shadow-[0_0_12px_rgba(255,45,85,0.15)] font-black'
+                          ? 'bg-[#ff2d55]/15 border-[#ff2d55]/60 text-white shadow-[0_0_12px_rgba(255,45,85,0.2)] font-black'
                           : 'bg-transparent border-transparent hover:bg-white/[0.02] text-zinc-400 hover:text-white'
                       }`}
                     >
                       <div className="flex items-center gap-2">
                         <PetraLogo className="w-4 h-4 flex-shrink-0" />
                         <div className="leading-tight">
-                          <span className="block uppercase tracking-wider">Petra</span>
-                          <span className="text-[7px] text-zinc-500 font-normal">Aptos Move</span>
+                          <span className="block uppercase tracking-wider font-extrabold text-white">Petra</span>
+                          <span className="text-[7px] text-zinc-500 font-normal">Aptos</span>
                         </div>
                       </div>
-                      <span className={`w-1.5 h-1.5 rounded-full ${sessionWallet === 'petra' ? 'bg-[#ff2d55] animate-pulse shadow-[0_0_6px_#ff2d55]' : 'bg-zinc-700'}`} />
+                      {sessionWallet === 'petra' ? (
+                        <span className="text-[7.5px] font-mono text-emerald-400 bg-emerald-500/15 border border-emerald-500/35 px-1.5 py-0.5 rounded font-black max-h-4 animate-pulse shadow-[0_0_6px_rgba(16,185,129,0.2)]">Connected</span>
+                      ) : (
+                        <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                      )}
                     </button>
 
-                    {/* Suiet Sui */}
+                    {/* Suiet (Sui) */}
                     <button
                       onClick={() => handleConnect('sui')}
                       className={`flex items-center justify-between gap-3 px-3 py-2 rounded-xl border transition-all text-left font-mono text-[9px] cursor-pointer ${
@@ -375,17 +399,21 @@ export function Dashboard() {
                       <div className="flex items-center gap-2">
                         <SuietLogo className="w-4 h-4 flex-shrink-0" />
                         <div className="leading-tight">
-                          <span className="block uppercase tracking-wider">Suiet</span>
-                          <span className="text-[7px] text-zinc-500 font-normal">Sui Ledger</span>
+                          <span className="block uppercase tracking-wider font-extrabold text-white">Suiet</span>
+                          <span className="text-[7px] text-zinc-500 font-normal">Sui</span>
                         </div>
                       </div>
-                      <span className={`w-1.5 h-1.5 rounded-full ${sessionWallet === 'sui' ? 'bg-[#38bdf8] animate-pulse shadow-[0_0_6px_#38bdf8]' : 'bg-zinc-700'}`} />
+                      {sessionWallet === 'sui' ? (
+                        <span className="text-[7.5px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded font-black max-h-4 animate-pulse">Connected</span>
+                      ) : (
+                        <span className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
+                      )}
                     </button>
 
                     {/* Disconnect helper */}
                     <button
                       onClick={handleDisconnect}
-                      className="px-2.5 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-mono text-[8px] font-black tracking-widest border border-red-500/20 hover:border-red-500/40 rounded-xl transition-all uppercase col-span-2 md:col-span-1 cursor-pointer"
+                      className="px-2.5 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-mono text-[8px] font-black tracking-widest border border-red-500/20 hover:border-red-500/40 rounded-xl transition-all uppercase cursor-pointer"
                     >
                       OFF
                     </button>
@@ -393,94 +421,119 @@ export function Dashboard() {
                 </div>
 
                 {/* 2. Connected Address Status Info Alert */}
-                <div className="text-[9px] font-mono text-[#ff5fc0] text-left md:text-right flex items-center md:justify-end gap-2 px-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_#34d399]" />
-                  <span>ACTIVE ADDRESS: <span className="text-white font-extrabold bg-white/[0.03] px-2 py-0.5 rounded border border-white-5 border-white/5">{activeAddress}</span></span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-3 py-2.5 bg-white/[0.01] border border-white/[0.03] rounded-2xl w-full">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[8.5px] font-mono text-zinc-500 uppercase tracking-widest">GATEWAY LINK:</span>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-mono font-black tracking-wider uppercase">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      CONNECTED
+                    </span>
+                  </div>
+                  <div className="text-[9.5px] font-mono text-zinc-400 font-bold uppercase flex items-center gap-1.5">
+                    ADDRESS: <span className="text-pink-400 font-black bg-pink-500/5 px-2.5 py-1 rounded-xl border border-pink-500/15 shadow-[0_0_8px_rgba(255,45,85,0.05)] select-all">{formatAddress(activeAddress)}</span>
+                  </div>
                 </div>
 
-                {/* 3. Dropdowns & Environment Selectors (Testnet/Mainnet & Core Channels) */}
-                <div className="flex flex-wrap items-center gap-3.5 md:justify-end">
-                  {/* Mainnet/Testnet selector options */}
-                  <div className="flex items-center gap-1.5 p-1 bg-[#090812] border border-white/5 rounded-2xl relative overflow-hidden">
-                    <button
-                      onClick={() => setNetworkEnvironment('mainnet')}
-                      className={`px-4.5 py-2 font-mono text-[9px] font-black tracking-widest rounded-xl transition-all cursor-pointer ${
-                        networkEnvironment === 'mainnet'
-                          ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-400/20 shadow-[0_0_10px_rgba(6,182,212,0.1)]'
-                          : 'text-zinc-500 hover:text-zinc-200'
-                      }`}
-                    >
-                      MAINNET
-                    </button>
-                    <button
-                      onClick={() => setNetworkEnvironment('testnet')}
-                      className={`px-4.5 py-2 font-mono text-[9px] font-black tracking-widest rounded-xl transition-all cursor-pointer ${
-                        networkEnvironment === 'testnet'
-                          ? 'bg-pink-500/10 text-pink-400 border border-pink-400/20 shadow-[0_0_10px_rgba(255,45,85,0.1)]'
-                          : 'text-zinc-500 hover:text-zinc-200'
-                      }`}
-                    >
-                      TESTNET
-                    </button>
+                {/* 3. Clean Network Selector just below connected wallet */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full border-t border-white/[0.04] pt-3.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[8.5px] font-mono text-zinc-500 uppercase tracking-widest">NETWORK ID:</span>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#ff2d55]/10 border border-[#ff2d55]/30 rounded-xl text-[9.5px] font-mono text-white font-extrabold tracking-wider">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#ff2d55] animate-pulse" />
+                      {sessionWallet === 'petra' 
+                        ? `Aptos ${networkEnvironment === 'mainnet' ? 'Mainnet' : 'Testnet'}` 
+                        : sessionWallet === 'sui' 
+                        ? `Sui ${networkEnvironment === 'mainnet' ? 'Mainnet' : 'Testnet'}`
+                        : sessionWallet === 'phantom' 
+                        ? `Solana ${networkEnvironment === 'mainnet' ? 'Mainnet' : 'Testnet'}` 
+                        : `Ethereum ${networkEnvironment === 'mainnet' ? 'Mainnet' : 'Testnet'}`}
+                    </div>
                   </div>
 
-                  {/* Chain Selector index dropdown */}
-                  <div className="relative w-48 font-mono">
-                    <button
-                      onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)}
-                      className="w-full flex items-center justify-between gap-2.5 px-3.5 py-2 text-[9px] font-black tracking-widest text-cyan-400 hover:text-cyan-300 bg-[#090812] border border-cyan-500/25 rounded-2xl transition-all cursor-pointer"
-                    >
-                      <span className="flex items-center gap-1.5 uppercase">
-                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: selectedChain.color }} />
-                        CORE: <span className="text-white font-extrabold">{selectedChain.symbol}</span>
-                      </span>
-                      <ChevronDown className={`w-3 h-3 text-cyan-400 transition-transform ${isChainDropdownOpen ? 'rotate-180' : ''}`} />
-                    </button>
+                  {/* Environment Switcher & Chain Dropdown grouped together */}
+                  <div className="flex flex-wrap items-center gap-3">
+                    {/* Mainnet vs Testnet Toggle */}
+                    <div className="flex items-center gap-1.5 p-1 bg-[#090812] border border-white/5 rounded-2xl">
+                      <button
+                        onClick={() => setNetworkEnvironment('mainnet')}
+                        className={`px-4.5 py-1.5 font-mono text-[9px] font-black tracking-widest rounded-xl transition-all cursor-pointer ${
+                          networkEnvironment === 'mainnet'
+                            ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-400/20 shadow-[0_0_10px_rgba(6,182,212,0.1)]'
+                            : 'text-zinc-500 hover:text-zinc-200'
+                        }`}
+                      >
+                        MAINNET
+                      </button>
+                      <button
+                        onClick={() => setNetworkEnvironment('testnet')}
+                        className={`px-4.5 py-1.5 font-mono text-[9px] font-black tracking-widest rounded-xl transition-all cursor-pointer ${
+                          networkEnvironment === 'testnet'
+                            ? 'bg-pink-500/10 text-pink-400 border border-pink-400/20 shadow-[0_0_10px_rgba(255,45,85,0.1)]'
+                            : 'text-zinc-500 hover:text-zinc-300'
+                        }`}
+                      >
+                        TESTNET
+                      </button>
+                    </div>
 
-                    <AnimatePresence>
-                      {isChainDropdownOpen && (
-                        <>
-                          <div className="fixed inset-0 z-40" onClick={() => setIsChainDropdownOpen(false)} />
-                          <motion.div
-                            initial={{ opacity: 0, y: -8 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -8 }}
-                            className="absolute right-0 left-0 mt-1.5 p-1.5 bg-[#080710]/95 border border-cyan-500/30 rounded-xl z-50 shadow-2xl backdrop-blur-xl max-h-56 overflow-y-auto text-[9px] space-y-1"
-                          >
-                            <div className="px-2 py-1 text-[7px] text-zinc-500 block uppercase font-bold border-b border-white/[0.04]">
-                              Select Active Sandbox Chain
-                            </div>
-                            {ECOSYSTEMS.map((chain) => {
-                              const isEvm = ['ethereum', 'arbitrum', 'base', 'polygon', 'optimism'].includes(chain.id);
-                              return (
-                                <button
-                                  key={chain.id}
-                                  onClick={() => {
-                                    setSelectedChain(chain);
-                                    setIsChainDropdownOpen(false);
-                                  }}
-                                  className={`w-full text-left px-2.5 py-2 rounded-lg transition-all flex items-center justify-between text-zinc-300 hover:text-white cursor-pointer ${
-                                    selectedChain.id === chain.id
-                                      ? 'bg-cyan-500/10 text-cyan-300 border border-cyan-400/20'
-                                      : 'hover:bg-white/[0.03] border border-transparent'
-                                  }`}
-                                >
-                                  <span className="uppercase font-bold flex items-center gap-1.5">
-                                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: chain.color }} />
-                                    {chain.name}
-                                  </span>
-                                  {isEvm ? (
-                                    <span className="text-[6px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded font-bold uppercase">EVM</span>
-                                  ) : (
-                                    <span className="text-[6px] bg-zinc-500/10 text-zinc-400 border border-zinc-500/10 px-1 rounded uppercase">MOVE</span>
-                                  )}
-                                </button>
-                              );
-                            })}
-                          </motion.div>
-                        </>
-                      )}
-                    </AnimatePresence>
+                    {/* Chain Selector index dropdown */}
+                    <div className="relative w-48 font-mono">
+                      <button
+                        onClick={() => setIsChainDropdownOpen(!isChainDropdownOpen)}
+                        className="w-full flex items-center justify-between gap-2.5 px-3.5 py-2 text-[9px] font-black tracking-widest text-cyan-400 hover:text-cyan-300 bg-[#090812] border border-cyan-500/25 rounded-2xl transition-all cursor-pointer"
+                      >
+                        <span className="flex items-center gap-1.5 uppercase">
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: selectedChain.color }} />
+                          CORE: <span className="text-white font-extrabold">{selectedChain.symbol}</span>
+                        </span>
+                        <ChevronDown className={`w-3 h-3 text-cyan-400 transition-transform ${isChainDropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      <AnimatePresence>
+                        {isChainDropdownOpen && (
+                          <>
+                            <div className="fixed inset-0 z-40" onClick={() => setIsChainDropdownOpen(false)} />
+                            <motion.div
+                              initial={{ opacity: 0, y: -8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -8 }}
+                              className="absolute right-0 left-0 mt-1.5 p-1.5 bg-[#080710]/95 border border-cyan-500/30 rounded-xl z-50 shadow-2xl backdrop-blur-xl max-h-56 overflow-y-auto text-[9px] space-y-1"
+                            >
+                              <div className="px-2 py-1 text-[7px] text-zinc-500 block uppercase font-bold border-b border-white/[0.04]">
+                                Select Active Sandbox Chain
+                              </div>
+                              {ECOSYSTEMS.map((chain) => {
+                                const isEvm = ['ethereum', 'arbitrum', 'base', 'polygon', 'optimism'].includes(chain.id);
+                                return (
+                                  <button
+                                    key={chain.id}
+                                    onClick={() => {
+                                      setSelectedChain(chain);
+                                      setIsChainDropdownOpen(false);
+                                    }}
+                                    className={`w-full text-left px-2.5 py-2 rounded-lg transition-all flex items-center justify-between text-zinc-300 hover:text-white cursor-pointer ${
+                                      selectedChain.id === chain.id
+                                        ? 'bg-cyan-500/10 text-cyan-300 border border-cyan-400/20'
+                                        : 'hover:bg-white/[0.03] border border-transparent'
+                                    }`}
+                                  >
+                                    <span className="uppercase font-bold flex items-center gap-1.5">
+                                      <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: chain.color }} />
+                                      {chain.name}
+                                    </span>
+                                    {isEvm ? (
+                                      <span className="text-[6px] bg-blue-500/10 text-blue-400 border border-blue-500/20 px-1 rounded font-bold uppercase">EVM</span>
+                                    ) : (
+                                      <span className="text-[6px] bg-zinc-500/10 text-zinc-400 border border-zinc-500/10 px-1 rounded uppercase">MOVE</span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -499,7 +552,7 @@ export function Dashboard() {
             className="space-y-8"
           >
             {activeTab === 'home' && (() => {
-              // Dynamic portfolio metadata based on selected network
+              // Dynamic portfolio metadata based on selected network (with Petra Aptos connected by default with $26,845.75)
               const chainStats: Record<string, { balance: string; pnl: string; isPositive: boolean; assets: number; gasSaved: string; accentColor: string; bgEffect: string }> = {
                 ethereum: { balance: '$485,210.80', pnl: '+$32,140.50 (+7.11%)', isPositive: true, assets: 8, gasSaved: '$120.40', accentColor: '#6366f1', bgEffect: 'rgba(99, 102, 241, 0.08)' },
                 arbitrum: { balance: '$254,180.40', pnl: '+$15,840.20 (+5.12%)', isPositive: true, assets: 5, gasSaved: '$1,420.00', accentColor: '#3b82f6', bgEffect: 'rgba(59, 130, 246, 0.08)' },
@@ -508,7 +561,7 @@ export function Dashboard() {
                 optimism: { balance: '$190,500.00', pnl: '+$8,140.00 (+4.20%)', isPositive: true, assets: 4, gasSaved: '$1,120.00', accentColor: '#ff0420', bgEffect: 'rgba(255, 4, 32, 0.08)' },
                 solana: { balance: '$182,300.00', pnl: '+$12,120.00 (+7.12%)', isPositive: true, assets: 14, gasSaved: '$4,120.00', accentColor: '#14f195', bgEffect: 'rgba(20, 241, 149, 0.08)' },
                 sui: { balance: '$192,400.00', pnl: '+$21,240.00 (+12.40%)', isPositive: true, assets: 11, gasSaved: '$2,850.00', accentColor: '#38bdf8', bgEffect: 'rgba(56, 189, 248, 0.08)' },
-                aptos: { balance: '$94,800.00', pnl: '+$4,120.00 (+4.55%)', isPositive: true, assets: 7, gasSaved: '$150.00', accentColor: '#ff2d55', bgEffect: 'rgba(255, 45, 85, 0.08)' },
+                aptos: { balance: '$26,845.75', pnl: '↑ 4.12% in 24h', isPositive: true, assets: 5, gasSaved: '$18,450.00', accentColor: '#ff2d55', bgEffect: 'rgba(255, 45, 85, 0.08)' },
                 cosmos: { balance: '$83,500.00', pnl: '-$350.00 (-0.42%)', isPositive: false, assets: 5, gasSaved: '$210.00', accentColor: '#ff79c6', bgEffect: 'rgba(255, 121, 198, 0.08)' },
               };
 
@@ -527,7 +580,7 @@ export function Dashboard() {
                     {/* Visual corner indicators */}
                     <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-cyan-400 rounded-tl-[2.5rem] opacity-40" />
                     <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-purple-500 rounded-br-[2.5rem] opacity-40" />
-
+ 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center relative z-10">
                       {/* Left Block: Core Numbers */}
                       <div className="lg:col-span-2 space-y-4">
@@ -535,9 +588,10 @@ export function Dashboard() {
                           <span className="text-[10px] font-mono tracking-[0.3em] text-[#06b6d4] uppercase block">
                             CRITICAL ASSET TELEMETRY: {selectedChain.name.toUpperCase()} ENGINE
                           </span>
-                          {sessionWallet === 'metamask' && (
-                            <span className="flex items-center gap-1 text-[9px] bg-amber-500/10 text-amber-500 rounded px-2 py-0.5 border border-amber-500/20 font-mono font-black uppercase">
-                              <MetaMaskLogo className="w-3.5 h-3.5" /> MetaMask Active
+                          {sessionWallet === 'petra' && (
+                            <span className="flex items-center gap-1.5 text-[9px] bg-emerald-500/15 text-emerald-400 rounded-md px-2 py-0.5 border border-emerald-500/25 font-mono font-black uppercase shadow-[0_0_8px_rgba(16,185,129,0.25)]">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                              Petra Active
                             </span>
                           )}
                         </div>
@@ -574,8 +628,8 @@ export function Dashboard() {
                           </div>
                           
                           <div className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl">
-                            <span className="text-[9px] text-zinc-500 font-mono block uppercase">L2 Gas Saved</span>
-                            <span className="text-lg font-black text-emerald-400 tracking-tight">{activeStats.gasSaved}</span>
+                            <span className="text-[9px] text-zinc-500 font-mono block uppercase">24h USD Hold</span>
+                            <span className="text-lg font-black text-emerald-400 tracking-tight">{selectedChain.id === 'aptos' ? '$18.45K' : activeStats.gasSaved}</span>
                           </div>
 
                           <div className="p-3 bg-white/[0.02] border border-white/5 rounded-2xl">
@@ -618,6 +672,116 @@ export function Dashboard() {
                       trend={`Fee Avg: ${selectedChain.metrics.avgGas}`} 
                       icon={<Activity className="w-5 h-5 text-[#14f195]" />} 
                     />
+                  </div>
+
+                  {/* Premium Multi-Chain Live Portfolio Ledger */}
+                  <div className="glass rounded-[2.5rem] p-8 border border-white/5 relative overflow-hidden shadow-[0_0_30px_rgba(0,0,0,0.3)]">
+                    <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-cyan-400/5 rounded-full blur-[100px] pointer-events-none" />
+                    
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                      <div>
+                        <h3 className="text-lg font-black tracking-tight text-white uppercase flex items-center gap-2">
+                          <Coins className="w-5 h-5 text-pink-400 animate-pulse" />
+                          Multi-Chain Live Portfolio Holdings
+                        </h3>
+                        <p className="text-zinc-400 text-xs mt-1">
+                          Audited cryptographically verified assets across actively linked virtual machines.
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 px-2.5 py-1 rounded-xl font-mono uppercase tracking-wider font-extrabold flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Live Ledger Stream
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                      {/* 1. APT */}
+                      <div className="p-5 rounded-2xl bg-white/[0.01] hover:bg-white/[0.03] border border-white/5 hover:border-pink-500/20 transition-all flex flex-col justify-between group relative">
+                        <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-pink-500 shadow-[0_0_6px_#ff2d55]" />
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="p-1.5 rounded-lg bg-pink-500/10 text-pink-400 border border-pink-500/20 font-bold text-[10px]">APT</span>
+                            <span className="text-[10px] text-zinc-500 font-mono">Aptos</span>
+                          </div>
+                          <span className="text-[9px] text-zinc-400 uppercase tracking-wider font-mono block">QUANTITY</span>
+                          <p className="text-xl font-black text-white leading-tight">1,248.75</p>
+                        </div>
+                        <div className="mt-4 pt-3 border-t border-white/[0.03] flex justify-between items-baseline">
+                          <span className="text-[9px] text-zinc-500 font-mono">VALUE (USD)</span>
+                          <span className="text-sm font-black text-white font-mono">$18,450.00</span>
+                        </div>
+                      </div>
+
+                      {/* 2. SUI */}
+                      <div className="p-5 rounded-2xl bg-white/[0.01] hover:bg-white/[0.03] border border-white/5 hover:border-cyan-400/20 transition-all flex flex-col justify-between group relative">
+                        <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee]" />
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-bold text-[10px]">SUI</span>
+                            <span className="text-[10px] text-zinc-500 font-mono">Sui Core</span>
+                          </div>
+                          <span className="text-[9px] text-zinc-400 uppercase tracking-wider font-mono block">QUANTITY</span>
+                          <p className="text-xl font-black text-white leading-tight">845.00</p>
+                        </div>
+                        <div className="mt-4 pt-3 border-t border-white/[0.03] flex justify-between items-baseline">
+                          <span className="text-[9px] text-zinc-500 font-mono">VALUE (USD)</span>
+                          <span className="text-sm font-black text-cyan-300 font-mono">$1,571.70</span>
+                        </div>
+                      </div>
+
+                      {/* 3. ETH */}
+                      <div className="p-5 rounded-2xl bg-white/[0.01] hover:bg-white/[0.03] border border-white/5 hover:border-indigo-500/20 transition-all flex flex-col justify-between group relative">
+                        <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-[0_0_6px_#6366f1]" />
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="p-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-bold text-[10px]">ETH</span>
+                            <span className="text-[10px] text-zinc-500 font-mono">Ethereum</span>
+                          </div>
+                          <span className="text-[9px] text-zinc-400 uppercase tracking-wider font-mono block">QUANTITY</span>
+                          <p className="text-xl font-black text-white leading-tight">3.85</p>
+                        </div>
+                        <div className="mt-4 pt-3 border-t border-white/[0.03] flex justify-between items-baseline">
+                          <span className="text-[9px] text-zinc-500 font-mono">VALUE (USD)</span>
+                          <span className="text-sm font-black text-indigo-300 font-mono">$13,418.02</span>
+                        </div>
+                      </div>
+
+                      {/* 4. SOL */}
+                      <div className="p-5 rounded-2xl bg-white/[0.01] hover:bg-white/[0.03] border border-white/5 hover:border-emerald-400/20 transition-all flex flex-col justify-between group relative">
+                        <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]" />
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold text-[10px]">SOL</span>
+                            <span className="text-[10px] text-zinc-500 font-mono">Solana VM</span>
+                          </div>
+                          <span className="text-[9px] text-zinc-400 uppercase tracking-wider font-mono block">QUANTITY</span>
+                          <p className="text-xl font-black text-white leading-tight">42.60</p>
+                        </div>
+                        <div className="mt-4 pt-3 border-t border-white/[0.03] flex justify-between items-baseline">
+                          <span className="text-[9px] text-zinc-500 font-mono">VALUE (USD)</span>
+                          <span className="text-sm font-black text-emerald-300 font-mono">$6,920.37</span>
+                        </div>
+                      </div>
+
+                      {/* 5. USDC */}
+                      <div className="p-5 rounded-2xl bg-white/[0.01] hover:bg-white/[0.03] border border-white/5 hover:border-teal-400/20 transition-all flex flex-col justify-between group relative">
+                        <div className="absolute top-3 right-3 w-1.5 h-1.5 rounded-full bg-teal-400 shadow-[0_0_6px_#0d9488]" />
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="p-1.5 rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/20 font-bold text-[10px]">USDC</span>
+                            <span className="text-[10px] text-zinc-500 font-mono">Stable</span>
+                          </div>
+                          <span className="text-[9px] text-zinc-400 uppercase tracking-wider font-mono block">QUANTITY</span>
+                          <p className="text-xl font-black text-white leading-tight">3,250.00</p>
+                        </div>
+                        <div className="mt-4 pt-3 border-t border-white/[0.03] flex justify-between items-baseline">
+                          <span className="text-[9px] text-zinc-500 font-mono">VALUE (USD)</span>
+                          <span className="text-sm font-black text-teal-300 font-mono">$3,250.00</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Dynamic Centered Chart Section */}
