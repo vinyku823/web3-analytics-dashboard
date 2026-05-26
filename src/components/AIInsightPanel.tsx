@@ -77,7 +77,7 @@ export function AIInsightPanel() {
         <button className="w-full flex items-center justify-between group p-4 rounded-2xl bg-primary/10 hover:bg-primary/20 border border-primary/20 transition-all font-medium text-sm">
           <span className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-primary" />
-            Ask ChainPulse AI
+            Ask Shelby AI
           </span>
           <ArrowRight className="w-4 h-4 translate-x-0 group-hover:translate-x-1 transition-transform" />
         </button>

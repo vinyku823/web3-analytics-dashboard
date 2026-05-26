@@ -8,71 +8,89 @@ import {
   MessageSquare, 
   Zap, 
   Bell, 
-  Settings,
   LogOut,
-  Hexagon
+  Hexagon,
+  Cpu,
+  Radio
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-export function Sidebar({ activeTab, setActiveTab }: { activeTab: string, setActiveTab: (t: string) => void }) {
+interface SidebarProps {
+  activeTab: string;
+  setActiveTab: (t: string) => void;
+}
+
+export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   const menuItems = [
-    { id: 'home', label: 'Home Dashboard', icon: Home },
-    { id: 'wallet', label: 'Wallet Analytics', icon: Wallet },
-    { id: 'tokens', label: 'Trending Tokens', icon: BarChart3 },
-    { id: 'nft', label: 'NFT Trends', icon: Image },
-    { id: 'ecosystems', label: 'Ecosystems', icon: Network },
-    { id: 'community', label: 'Community', icon: MessageSquare },
-    { id: 'ai', label: 'AI Insights', icon: Zap },
-    { id: 'alerts', label: 'Alert Center', icon: Bell },
+    { id: 'home', label: 'Overview Orbit', icon: Home, color: 'text-indigo-400 font-bold' },
+    { id: 'wallet', label: 'Wallet Indexer', icon: Wallet, color: 'text-cyan-400 font-bold' },
+    { id: 'tokens', label: 'Trending Matrices', icon: BarChart3, color: 'text-emerald-400 font-bold' },
+    { id: 'nft', label: 'NFT Live Sweeper', icon: Image, color: 'text-pink-400 font-bold' },
+    { id: 'ecosystems', label: 'Blockchain Cores', icon: Network, color: 'text-purple-400 font-bold' },
+    { id: 'community', label: 'Gemini AI Chat', icon: MessageSquare, color: 'text-fuchsia-400 font-bold' },
+    { id: 'alerts', label: 'Holographic Alerts', icon: Bell, color: 'text-yellow-400 font-bold' },
   ];
 
   return (
-    <aside className="w-72 glass border-r-0 fixed h-full hidden lg:flex flex-col z-50">
-      <div className="p-8 pb-12">
+    <aside className="w-80 glass border-r border-white/[0.05] fixed h-full hidden lg:flex flex-col z-50 p-6">
+      {/* Spinning branding loader */}
+      <div className="p-4 pb-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/40 neon-border">
-            <Hexagon className="w-6 h-6 text-primary fill-primary/20" />
+          <div className="w-10 h-10 bg-indigo-500/10 rounded-2xl flex items-center justify-center border border-indigo-500/30 neon-glow-purple">
+            <Hexagon className="w-6 h-6 text-indigo-400 animate-spin" style={{ animationDuration: '10s' }} />
           </div>
-          <span className="text-xl font-bold tracking-tighter">Web3 Analytics</span>
+          <div>
+            <span className="text-sm font-black tracking-[0.2em] bg-gradient-to-r from-amber-400 via-orange-300 to-white bg-clip-text text-transparent block">SHELBY</span>
+            <span className="text-[8px] font-mono tracking-widest text-amber-500/50 uppercase block">ANALYTICS ENGINE</span>
+          </div>
         </div>
       </div>
 
-      <nav className="flex-1 px-4 space-y-2">
-        {menuItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setActiveTab(item.id)}
-            className={cn(
-              "w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group relative",
-              activeTab === item.id 
-                ? "bg-primary/20 text-white border border-primary/30" 
-                : "text-white/40 hover:text-white hover:bg-white/5 border border-transparent"
-            )}
-          >
-            {activeTab === item.id && (
-              <div className="absolute left-0 w-1 h-6 bg-primary rounded-full" />
-            )}
-            <item.icon className={cn(
-              "w-5 h-5 transition-transform group-hover:scale-110",
-              activeTab === item.id ? "text-primary" : "text-white/30"
-            )} />
-            <span className="font-medium text-sm">{item.label}</span>
-          </button>
-        ))}
+      {/* Primary Navigation list */}
+      <nav className="flex-1 space-y-2 px-1">
+        {menuItems.map((item) => {
+          const isActive = activeTab === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={cn(
+                "w-full flex items-center gap-3.5 px-4.5 py-3.5 rounded-2xl transition-all duration-300 group relative font-mono text-xs text-left",
+                isActive 
+                  ? "bg-indigo-500/10 text-white border border-indigo-500/25 shadow-[0_0_15px_rgba(99,102,241,0.1)]" 
+                  : "text-white/45 hover:text-white hover:bg-white/[0.03] border border-transparent"
+              )}
+            >
+              {isActive && (
+                <div className="absolute left-0 w-1 h-7 bg-indigo-400 rounded-full animate-pulse" />
+              )}
+              <item.icon className={cn(
+                "w-4.5 h-4.5 transition-transform duration-300 group-hover:scale-115",
+                isActive ? "text-indigo-400" : "text-white/30"
+              )} />
+              <span className="font-bold tracking-wider uppercase">{item.label}</span>
+            </button>
+          );
+        })}
       </nav>
 
-      <div className="p-4 mt-auto">
-        <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.08] mb-6">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-2 h-2 rounded-full bg-primary" />
-            <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest">Network Status</span>
+      {/* Footer statistics module */}
+      <div className="p-1 mt-auto">
+        <div className="p-4 rounded-2xl bg-black/40 border border-white/[0.04] mb-4 relative overflow-hidden">
+          <div className="absolute top-2 right-2 flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#14f195] opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#14f195]" />
           </div>
-          <p className="text-xs font-medium">Healthy / Syncing</p>
+          <div className="flex items-center gap-2 mb-2">
+            <Radio className="w-3.5 h-3.5 text-[#14f195]" />
+            <span className="text-[8px] font-mono text-white/30 uppercase tracking-widest leading-none">Global Oracle Links</span>
+          </div>
+          <p className="text-[10px] font-bold font-mono text-emerald-400 uppercase tracking-wider">ONLINE / SYNCED SECURE</p>
         </div>
         
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-white/40 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200">
-          <LogOut className="w-5 h-5" />
-          <span className="font-medium text-sm">Logout</span>
+        <button className="w-full flex items-center gap-3 px-4.5 py-3.5 rounded-2xl font-mono text-xs font-bold uppercase tracking-wider text-white/40 hover:text-[#ff2d55] hover:bg-[#ff2d55]/5 border border-transparent transition-all duration-300">
+          <LogOut className="w-4.5 h-4.5" />
+          <span>TERMINATE_PORT</span>
         </button>
       </div>
     </aside>
