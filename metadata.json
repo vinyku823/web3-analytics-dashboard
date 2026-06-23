@@ -1,6 +1,10 @@
 {
-  "name": "Shelby Analytics",
-  "description": "A premium AI-powered Web3 analytics dashboard for tracking on-chain activity, token trends, and ecosystem growth across multiple blockchains.",
-  "requestFramePermissions": [],
-  "majorCapabilities": []
+  "name": "Shelby Terminal",
+  "description": "Hyper-realistic multi-chain Web3 Portfolio Management & DEX swap terminal utilizing real-time price tick feeds.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

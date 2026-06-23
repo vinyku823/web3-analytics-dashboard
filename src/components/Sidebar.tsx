@@ -1,99 +1,74 @@
 import React from 'react';
-import { 
-  Home, 
-  Wallet, 
-  BarChart3, 
-  Image, 
-  Network, 
-  MessageSquare, 
-  Zap, 
-  Bell, 
-  LogOut,
-  Cpu,
-  Radio
-} from 'lucide-react';
-import { cn } from '../lib/utils';
-import { ShelbyLogo } from './ShelbyLogo';
+import { Home, MessageSquare, Compass, Bell, Cpu, Layers } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
-  setActiveTab: (t: string) => void;
+  setActiveTab: (tab: string) => void;
+  selectedChain: { id: string; name: string };
 }
 
-export function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
-  const menuItems = [
-    { id: 'home', label: 'Overview Orbit', icon: Home, color: 'text-indigo-400 font-bold' },
-    { id: 'wallet', label: 'Wallet Indexer', icon: Wallet, color: 'text-cyan-400 font-bold' },
-    { id: 'tokens', label: 'Trending Matrices', icon: BarChart3, color: 'text-emerald-400 font-bold' },
-    { id: 'nft', label: 'NFT Live Sweeper', icon: Image, color: 'text-pink-400 font-bold' },
-    { id: 'ecosystems', label: 'Blockchain Cores', icon: Network, color: 'text-purple-400 font-bold' },
-    { id: 'community', label: 'Gemini AI Chat', icon: MessageSquare, color: 'text-fuchsia-400 font-bold' },
-    { id: 'alerts', label: 'Holographic Alerts', icon: Bell, color: 'text-yellow-400 font-bold' },
+export const Sidebar: React.FC<SidebarProps> = ({
+  activeTab,
+  setActiveTab,
+  selectedChain,
+}) => {
+  const links = [
+    { id: 'home', label: 'Terminal Core', icon: Home, subtitle: 'Portfolio & DEX' },
+    { id: 'ai', label: 'Shelby AI Agent', icon: MessageSquare, subtitle: 'Defi LLM Copilot' },
+    { id: 'ecosystems', label: 'Ecosystem Rails', icon: Compass, subtitle: 'Gas & TVL Stats' },
   ];
 
   return (
-    <aside className="w-80 glass border-r border-white/[0.05] fixed h-full hidden lg:flex flex-col z-50 p-6">
-      {/* Custom Shelby Pink Logo branding header */}
-      <div className="p-4 pb-8 border-b border-white/[0.04] mb-6">
-        <div className="flex items-center gap-3.5 group cursor-pointer">
-          <div className="relative flex-shrink-0 transition-transform duration-500 group-hover:rotate-[120deg]">
-            <ShelbyLogo size={36} className="shadow-[0_0_15px_rgba(255,95,192,0.4)]" />
-            <div className="absolute inset-0 bg-[#ff5fc0] rounded-[11px] blur-md opacity-25 group-hover:opacity-45 transition-opacity" />
-          </div>
-          <div>
-            <span className="text-sm font-black tracking-[0.25em] bg-gradient-to-r from-[#ff5fc0] via-cyan-300 to-white bg-clip-text text-transparent block">SHELBY</span>
-            <span className="text-[8px] font-mono tracking-widest text-[#ff5fc0] uppercase block font-black">QUANT MODULE V3</span>
-          </div>
+    <aside id="terminal-sidebar" className="w-full lg:w-64 bg-zinc-950 border-r border-white/[0.06] p-6 shrink-0 flex flex-col justify-between h-auto lg:h-[calc(100vh-2rem)] select-none">
+      <div className="flex flex-col gap-8">
+        {/* Navigation block */}
+        <div className="flex flex-col gap-1.5">
+          {links.map((link) => {
+            const Icon = link.icon;
+            const isSelected = activeTab === link.id;
+            return (
+              <button
+                key={link.id}
+                id={`sidebar-link-${link.id}`}
+                onClick={() => setActiveTab(link.id)}
+                className={`w-full flex items-center gap-3.5 p-3 rounded-xl transition-all border group text-left ${
+                  isSelected
+                    ? 'bg-zinc-900 border-white/[0.08] text-white shadow-lg'
+                    : 'bg-transparent border-transparent text-zinc-500 hover:text-zinc-300'
+                }`}
+              >
+                <div
+                  className={`p-2 rounded-lg transition-all ${
+                    isSelected ? 'bg-teal-500/10 text-teal-400' : 'bg-transparent text-zinc-600 group-hover:text-zinc-400'
+                  }`}
+                >
+                  <Icon size={16} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-black tracking-wide uppercase">{link.label}</span>
+                  <span className="text-[9px] font-mono text-zinc-500 mt-0.5">{link.subtitle}</span>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Primary Navigation list */}
-      <nav className="flex-1 space-y-2 px-1">
-        {menuItems.map((item) => {
-          const isActive = activeTab === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={cn(
-                "w-full flex items-center gap-3.5 px-4.5 py-3.5 rounded-2xl transition-all duration-300 group relative font-mono text-xs text-left",
-                isActive 
-                  ? "bg-indigo-500/10 text-white border border-indigo-500/25 shadow-[0_0_15px_rgba(99,102,241,0.1)]" 
-                  : "text-white/45 hover:text-white hover:bg-white/[0.03] border border-transparent"
-              )}
-            >
-              {isActive && (
-                <div className="absolute left-0 w-1 h-7 bg-indigo-400 rounded-full animate-pulse" />
-              )}
-              <item.icon className={cn(
-                "w-4.5 h-4.5 transition-transform duration-300 group-hover:scale-115",
-                isActive ? "text-indigo-400" : "text-white/30"
-              )} />
-              <span className="font-bold tracking-wider uppercase">{item.label}</span>
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* Footer statistics module */}
-      <div className="p-1 mt-auto">
-        <div className="p-4 rounded-2xl bg-black/40 border border-white/[0.04] mb-4 relative overflow-hidden">
-          <div className="absolute top-2 right-2 flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#14f195] opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#14f195]" />
-          </div>
-          <div className="flex items-center gap-2 mb-2">
-            <Radio className="w-3.5 h-3.5 text-[#14f195]" />
-            <span className="text-[8px] font-mono text-white/30 uppercase tracking-widest leading-none">Global Oracle Links</span>
-          </div>
-          <p className="text-[10px] font-bold font-mono text-emerald-400 uppercase tracking-wider">ONLINE / SYNCED SECURE</p>
+      {/* Network Status indicator widget */}
+      <div className="bg-zinc-900/40 border border-white/[0.04] rounded-xl p-4 mt-6">
+        <div className="flex items-center gap-2.5 mb-2.5">
+          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="text-[10px] font-bold text-zinc-400 tracking-wider font-mono uppercase">ONLINE RAILS</span>
         </div>
-        
-        <button className="w-full flex items-center gap-3 px-4.5 py-3.5 rounded-2xl font-mono text-xs font-bold uppercase tracking-wider text-white/40 hover:text-[#ff2d55] hover:bg-[#ff2d55]/5 border border-transparent transition-all duration-300">
-          <LogOut className="w-4.5 h-4.5" />
-          <span>TERMINATE_PORT</span>
-        </button>
+        <div className="flex justify-between items-center text-[9px] font-mono text-zinc-500">
+          <span>Active VM:</span>
+          <span className="text-zinc-300 font-bold">{selectedChain.name}</span>
+        </div>
+        <div className="flex justify-between items-center text-[9px] font-mono text-zinc-500 mt-1">
+          <span>Trace Lag:</span>
+          <span className="text-teal-400 font-bold">14ms</span>
+        </div>
       </div>
     </aside>
   );
-}
+};
