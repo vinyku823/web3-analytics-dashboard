@@ -40,6 +40,7 @@ import { TokensDashboard } from './TokensDashboard';
 import { EcosystemsDashboard } from './EcosystemsDashboard';
 import { AIChatDashboard } from './AIChatDashboard';
 import { ShelbyLogo } from './ShelbyLogo';
+import { InteractiveSwapper } from './InteractiveSwapper';
 
 // Mock datasets
 import { ECOSYSTEMS, MOCK_LIVE_TX, LiveTx, Ecosystem, TRENDING_TOKENS, NFT_COLLECTIONS } from '../data/mockData';
@@ -115,6 +116,54 @@ export function Dashboard() {
   const [selectedChain, setSelectedChain] = useState<Ecosystem>(() => ECOSYSTEMS.find(e => e.id === 'aptos') || ECOSYSTEMS[0]);
   const [liveTxs, setLiveTxs] = useState<LiveTx[]>(MOCK_LIVE_TX);
   const [currentTime, setCurrentTime] = useState<string>('');
+
+  // Live multi-chain holdings synchronized from or stored to localStorage
+  const [holdings, setHoldings] = useState(() => {
+    const saved = localStorage.getItem('shelby_holdings');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        // Fallback
+      }
+    }
+    return {
+      APT: 1248.75,
+      SUI: 845.00,
+      ETH: 3.85,
+      SOL: 42.60,
+      USDC: 3250.00
+    };
+  });
+
+  const handleSwapCompleted = (fromToken: 'APT' | 'SUI' | 'ETH' | 'SOL' | 'USDC', toToken: 'APT' | 'SUI' | 'ETH' | 'SOL' | 'USDC', fromAmt: number, toAmt: number) => {
+    setHoldings(prev => {
+      const updated = {
+        ...prev,
+        [fromToken]: Math.max(0, prev[fromToken] - fromAmt),
+        [toToken]: prev[toToken] + toAmt
+      };
+      localStorage.setItem('shelby_holdings', JSON.stringify(updated));
+      return updated;
+    });
+
+    // Also construct a dynamic on-chain swap trace item to insert into live transactions
+    const randomHash = '0x' + Array.from({length: 24}, () => 'abcdef0123456789'[Math.floor(Math.random()*16)]).join('');
+    const userTx: LiveTx = {
+      id: `tx-user-swap-${Date.now()}`,
+      hash: `${randomHash.slice(0, 8)}...${randomHash.slice(-4)}`,
+      chain: fromToken === 'SOL' ? 'Solana' : fromToken === 'SUI' ? 'Sui' : fromToken === 'APT' ? 'Aptos' : 'Ethereum',
+      from: activeAddress ? (activeAddress.includes('...') ? activeAddress : `${activeAddress.slice(0, 6)}...${activeAddress.slice(-4)}`) : '0x7f4a...6b91',
+      to: 'Shelby DEX Router',
+      value: `${fromAmt.toFixed(2)} ${fromToken} → ${toAmt.toFixed(2)} ${toToken}`,
+      token: toToken,
+      type: 'Swap' as any,
+      gas: fromToken === 'ETH' ? '0.001 ETH' : '0.005 SUI',
+      timestamp: 'Just now',
+      status: 'SUCCESS'
+    };
+    setLiveTxs(prev => [userTx, ...prev]);
+  };
 
   // Wallet simulated statuses
   const [phantomSeed, setPhantomSeed] = useState(false);
@@ -552,17 +601,24 @@ export function Dashboard() {
             className="space-y-8"
           >
             {activeTab === 'home' && (() => {
-              // Dynamic portfolio metadata based on selected network (with Petra Aptos connected by default with $26,845.75)
+              // Dynamic portfolio metadata calculated on the fly matching user holdings
+              const dynamicAptValue = holdings.APT * 14.77;
+              const dynamicSuiValue = holdings.SUI * 1.86;
+              const dynamicEthValue = holdings.ETH * 3485.20;
+              const dynamicSolValue = holdings.SOL * 162.45;
+              const dynamicUsdcValue = holdings.USDC * 1.0;
+              const totalNetWorthUSD = dynamicAptValue + dynamicSuiValue + dynamicEthValue + dynamicSolValue + dynamicUsdcValue;
+
               const chainStats: Record<string, { balance: string; pnl: string; isPositive: boolean; assets: number; gasSaved: string; accentColor: string; bgEffect: string }> = {
-                ethereum: { balance: '$485,210.80', pnl: '+$32,140.50 (+7.11%)', isPositive: true, assets: 8, gasSaved: '$120.40', accentColor: '#6366f1', bgEffect: 'rgba(99, 102, 241, 0.08)' },
+                ethereum: { balance: dynamicEthValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }), pnl: '+$4,140.50 (+1.25%)', isPositive: true, assets: 8, gasSaved: '$120.40', accentColor: '#6366f1', bgEffect: 'rgba(99, 102, 241, 0.08)' },
                 arbitrum: { balance: '$254,180.40', pnl: '+$15,840.20 (+5.12%)', isPositive: true, assets: 5, gasSaved: '$1,420.00', accentColor: '#3b82f6', bgEffect: 'rgba(59, 130, 246, 0.08)' },
                 base: { balance: '$318,450.00', pnl: '+$34,290.00 (+11.85%)', isPositive: true, assets: 12, gasSaved: '$1,980.50', accentColor: '#0052ff', bgEffect: 'rgba(0, 82, 255, 0.08)' },
                 polygon: { balance: '$112,400.20', pnl: '-$1,410.50 (-1.25%)', isPositive: false, assets: 6, gasSaved: '$850.00', accentColor: '#a855f7', bgEffect: 'rgba(168, 85, 247, 0.08)' },
                 optimism: { balance: '$190,500.00', pnl: '+$8,140.00 (+4.20%)', isPositive: true, assets: 4, gasSaved: '$1,120.00', accentColor: '#ff0420', bgEffect: 'rgba(255, 4, 32, 0.08)' },
-                solana: { balance: '$182,300.00', pnl: '+$12,120.00 (+7.12%)', isPositive: true, assets: 14, gasSaved: '$4,120.00', accentColor: '#14f195', bgEffect: 'rgba(20, 241, 149, 0.08)' },
-                sui: { balance: '$192,400.00', pnl: '+$21,240.00 (+12.40%)', isPositive: true, assets: 11, gasSaved: '$2,850.00', accentColor: '#38bdf8', bgEffect: 'rgba(56, 189, 248, 0.08)' },
-                aptos: { balance: '$26,845.75', pnl: '↑ 4.12% in 24h', isPositive: true, assets: 5, gasSaved: '$18,450.00', accentColor: '#ff2d55', bgEffect: 'rgba(255, 45, 85, 0.08)' },
-                cosmos: { balance: '$83,500.00', pnl: '-$350.00 (-0.42%)', isPositive: false, assets: 5, gasSaved: '$210.00', accentColor: '#ff79c6', bgEffect: 'rgba(255, 121, 198, 0.08)' },
+                solana: { balance: dynamicSolValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }), pnl: '+$2,120.00 (+3.45%)', isPositive: true, assets: 14, gasSaved: '$4,120.00', accentColor: '#14f195', bgEffect: 'rgba(20, 241, 149, 0.08)' },
+                sui: { balance: dynamicSuiValue.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }), pnl: '+$1,240.00 (+8.20%)', isPositive: true, assets: 11, gasSaved: '$2,850.00', accentColor: '#38bdf8', bgEffect: 'rgba(56, 189, 248, 0.08)' },
+                aptos: { balance: totalNetWorthUSD.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }), pnl: '↑ Unified Worth', isPositive: true, assets: 5, gasSaved: '$18,450.00', accentColor: '#ff2d55', bgEffect: 'rgba(255, 45, 85, 0.08)' },
+                cosmos: { balance: '$8,350.00', pnl: '-$350.00 (-0.42%)', isPositive: false, assets: 5, gasSaved: '$210.00', accentColor: '#ff79c6', bgEffect: 'rgba(255, 121, 198, 0.08)' },
               };
 
               const activeStats = chainStats[selectedChain.id] || chainStats.ethereum;
@@ -705,12 +761,16 @@ export function Dashboard() {
                             <span className="p-1.5 rounded-lg bg-pink-500/10 text-pink-400 border border-pink-500/20 font-bold text-[10px]">APT</span>
                             <span className="text-[10px] text-zinc-500 font-mono">Aptos</span>
                           </div>
-                          <span className="text-[9px] text-zinc-400 uppercase tracking-wider font-mono block">QUANTITY</span>
-                          <p className="text-xl font-black text-white leading-tight">1,248.75</p>
+                           <span className="text-[9px] text-zinc-400 uppercase tracking-wider font-mono block">QUANTITY</span>
+                          <p className="text-xl font-black text-white leading-tight">
+                            {holdings.APT.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </p>
                         </div>
                         <div className="mt-4 pt-3 border-t border-white/[0.03] flex justify-between items-baseline">
                           <span className="text-[9px] text-zinc-500 font-mono">VALUE (USD)</span>
-                          <span className="text-sm font-black text-white font-mono">$18,450.00</span>
+                          <span className="text-sm font-black text-white font-mono">
+                            {(holdings.APT * 14.77).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                          </span>
                         </div>
                       </div>
 
@@ -723,11 +783,15 @@ export function Dashboard() {
                             <span className="text-[10px] text-zinc-500 font-mono">Sui Core</span>
                           </div>
                           <span className="text-[9px] text-zinc-400 uppercase tracking-wider font-mono block">QUANTITY</span>
-                          <p className="text-xl font-black text-white leading-tight">845.00</p>
+                          <p className="text-xl font-black text-white leading-tight">
+                            {holdings.SUI.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </p>
                         </div>
                         <div className="mt-4 pt-3 border-t border-white/[0.03] flex justify-between items-baseline">
                           <span className="text-[9px] text-zinc-500 font-mono">VALUE (USD)</span>
-                          <span className="text-sm font-black text-cyan-300 font-mono">$1,571.70</span>
+                          <span className="text-sm font-black text-cyan-300 font-mono">
+                            {(holdings.SUI * 1.86).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                          </span>
                         </div>
                       </div>
 
@@ -740,11 +804,15 @@ export function Dashboard() {
                             <span className="text-[10px] text-zinc-500 font-mono">Ethereum</span>
                           </div>
                           <span className="text-[9px] text-zinc-400 uppercase tracking-wider font-mono block">QUANTITY</span>
-                          <p className="text-xl font-black text-white leading-tight">3.85</p>
+                          <p className="text-xl font-black text-white leading-tight">
+                            {holdings.ETH.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
+                          </p>
                         </div>
                         <div className="mt-4 pt-3 border-t border-white/[0.03] flex justify-between items-baseline">
                           <span className="text-[9px] text-zinc-500 font-mono">VALUE (USD)</span>
-                          <span className="text-sm font-black text-indigo-300 font-mono">$13,418.02</span>
+                          <span className="text-sm font-black text-indigo-300 font-mono">
+                            {(holdings.ETH * 3485.20).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                          </span>
                         </div>
                       </div>
 
@@ -757,11 +825,15 @@ export function Dashboard() {
                             <span className="text-[10px] text-zinc-500 font-mono">Solana VM</span>
                           </div>
                           <span className="text-[9px] text-zinc-400 uppercase tracking-wider font-mono block">QUANTITY</span>
-                          <p className="text-xl font-black text-white leading-tight">42.60</p>
+                          <p className="text-xl font-black text-white leading-tight">
+                            {holdings.SOL.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </p>
                         </div>
                         <div className="mt-4 pt-3 border-t border-white/[0.03] flex justify-between items-baseline">
                           <span className="text-[9px] text-zinc-500 font-mono">VALUE (USD)</span>
-                          <span className="text-sm font-black text-emerald-300 font-mono">$6,920.37</span>
+                          <span className="text-sm font-black text-emerald-300 font-mono">
+                            {(holdings.SOL * 162.45).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                          </span>
                         </div>
                       </div>
 
@@ -774,15 +846,22 @@ export function Dashboard() {
                             <span className="text-[10px] text-zinc-500 font-mono">Stable</span>
                           </div>
                           <span className="text-[9px] text-zinc-400 uppercase tracking-wider font-mono block">QUANTITY</span>
-                          <p className="text-xl font-black text-white leading-tight">3,250.00</p>
+                          <p className="text-xl font-black text-white leading-tight">
+                            {holdings.USDC.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </p>
                         </div>
                         <div className="mt-4 pt-3 border-t border-white/[0.03] flex justify-between items-baseline">
                           <span className="text-[9px] text-zinc-500 font-mono">VALUE (USD)</span>
-                          <span className="text-sm font-black text-teal-300 font-mono">$3,250.00</span>
+                          <span className="text-sm font-black text-teal-300 font-mono">
+                            {holdings.USDC.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                          </span>
                         </div>
                       </div>
                     </div>
                   </div>
+
+                  {/* Fully Functional Aesthetic Multi-chain DEX Swapper Node */}
+                  <InteractiveSwapper holdings={holdings} onSwapCompleted={handleSwapCompleted} />
 
                   {/* Dynamic Centered Chart Section */}
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
