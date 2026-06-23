@@ -14,6 +14,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const links = [
     { id: 'home', label: 'Terminal Core', icon: Home, subtitle: 'Portfolio & DEX' },
+    { id: 'a2z', label: 'A2Z Chain Link', icon: Cpu, subtitle: 'A-to-Z Address Explorer' },
     { id: 'ai', label: 'Shelby AI Agent', icon: MessageSquare, subtitle: 'Defi LLM Copilot' },
     { id: 'ecosystems', label: 'Ecosystem Rails', icon: Compass, subtitle: 'Gas & TVL Stats' },
   ];

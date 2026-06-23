@@ -12,6 +12,7 @@ import { AIChatDashboard } from './AIChatDashboard';
 import { ShelbyLogo } from './ShelbyLogo';
 import { StatsCard } from './StatsCard';
 import { AnalyticsChart } from './AnalyticsChart';
+import { A2ZChainDashboard } from './A2ZChainDashboard';
 
 // Shared datasets and typings
 import { Holdings, TokenPrices, LiveTx } from '../types';
@@ -365,6 +366,17 @@ export const Dashboard: React.FC = () => {
                   </div>
                 </div>
               </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'a2z' && (
+            <motion.div
+              key="a2z-explorer"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+            >
+              <A2ZChainDashboard />
             </motion.div>
           )}
 
